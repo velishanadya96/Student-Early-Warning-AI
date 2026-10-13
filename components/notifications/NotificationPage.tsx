@@ -5,10 +5,10 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { useRisksQuery } from "@/hooks/useData";
 
-export default function NotificationPage({ studentOnly = false }: { studentOnly?: boolean }) {
+export default function NotificationPage() {
   const { data: risks, isLoading, isError, refetch } = useRisksQuery();
-  const selectedNim = typeof document === "undefined" ? "" : decodeURIComponent(document.cookie.split("; ").find((item) => item.startsWith("sew_nim="))?.split("=")[1] ?? "");
-  const visible = (risks ?? []).filter((risk) => !studentOnly || String(risk.nim) === selectedNim);
+  // Server hanya mengirim data milik pengguna yang login (mahasiswa: dirinya sendiri; dosen: semua).
+  const visible = risks ?? [];
   const high = visible.filter((risk) => risk.category === "Tinggi");
 
   return <section>

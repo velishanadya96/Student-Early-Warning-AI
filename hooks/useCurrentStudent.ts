@@ -1,29 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  resolveCurrentStudent,
-  type CurrentStudent,
-} from "@/lib/currentStudent";
+import { useMemo } from "react";
+import { useSessionQuery } from "@/hooks/useSession";
+import { useStudentsQuery } from "@/hooks/useData";
+import { buildCurrentStudent } from "@/lib/currentStudent";
 
-/**
- * Sebelumnya hook ini fetch ke /api/student/current yang mencari data
- * berdasarkan cookie `sew_nim`. Cookie itu tidak pernah dihapus saat logout,
- * jadi akun baru (mis. Tata) tetap menampilkan data Alya Putri.
- *
- * Sekarang identitas diambil dari akun yang benar-benar login.
- */
+/** Mahasiswa yang sedang login, dengan data akademik terbaru dari API. */
 export function useCurrentStudent() {
-  const [student, setStudent] = useState<CurrentStudent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  const session = useSessionQuery();
+  const students = useStudentsQuery();
 
-  useEffect(() => {
-    const result = resolveCurrentStudent();
-    setStudent(result);
-    setIsError(result === null);
-    setIsLoading(false);
-  }, []);
+  const user = session.data?.role === "mahasiswa" ? session.data : null;
 
-  return { student, isLoading, isError };
+  const student = useMemo(
+    () => (user ? buildCurrentStudent({ name: user.name, email: user.email, nim: user.nim ?? undefined }, students.data ?? []) : null),
+    [user, students.data],
+  );
+
+  const isLoading = session.isLoading || (user !== null && students.isLoading);
+  const isError = session.isError || (!session.isLoading && user === null) || students.isError;
+
+  return { student: isError ? null : student, isLoading, isError };
+}
+
+/** Mahasiswa yang dipantau akun Orang Tua (ditentukan Admin di backend). Tidak ada fallback ke mahasiswa lain. */
+export function useLinkedStudent() {
+  const session = useSessionQuery();
+  const students = useStudentsQuery();
+
+  const nim = session.data?.role === "orangtua" ? session.data.nim : null;
+  const student = useMemo(() => (nim ? (students.data ?? []).find((item) => String(item.nim) === nim) ?? null : null), [nim, students.data]);
+
+  return { student, isLoading: session.isLoading || students.isLoading, isError: session.isError || students.isError };
 }

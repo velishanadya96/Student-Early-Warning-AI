@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Activity, Gauge, RefreshCw, Zap } from "lucide-react";
+import { useState } from "react";
 
 type BuildMetric = {
   tool: string;
@@ -9,10 +9,20 @@ type BuildMetric = {
 };
 
 const metrics: BuildMetric[] = [
-  { tool: "Vite + Esbuild", buildTimeMs: 280, hmrTimeMs: 4, note: "Angka contoh dari modul; ukur ulang secara lokal." },
+  {
+    tool: "Vite + Esbuild",
+    buildTimeMs: 280,
+    hmrTimeMs: 4,
+    note: "Angka contoh dari modul; ukur ulang secara lokal.",
+  },
   { tool: "Tailwind v4 Oxide", buildTimeMs: 8, hmrTimeMs: 2, note: "Angka contoh dari modul." },
   { tool: "Rolldown", buildTimeMs: 90, hmrTimeMs: 3, note: "Angka contoh dari modul." },
-  { tool: "Legacy Webpack", buildTimeMs: 14500, hmrTimeMs: 850, note: "Angka pembanding dari modul." },
+  {
+    tool: "Legacy Webpack",
+    buildTimeMs: 14500,
+    hmrTimeMs: 850,
+    note: "Angka pembanding dari modul.",
+  },
 ];
 
 export default function App() {
@@ -34,34 +44,76 @@ export default function App() {
             Vite + Strict TypeScript + Biome Toolchain — studi migrasi build pipeline frontend.
           </p>
         </div>
-        <div className="status-pill"><Zap size={16} /> Vite ESM</div>
+        <div className="status-pill">
+          <Zap size={16} /> Vite ESM
+        </div>
       </header>
 
       <section className="grid three">
-        <article className="metric-card"><Gauge size={22} /><span>Build target</span><strong>ESNext</strong></article>
-        <article className="metric-card"><Activity size={22} /><span>Code splitting</span><strong>vendor + icons</strong></article>
-        <article className="metric-card"><RefreshCw size={22} /><span>HMR demo renders</span><strong>{renderCount}</strong></article>
+        <article className="metric-card">
+          <Gauge size={22} />
+          <span>Build target</span>
+          <strong>ESNext</strong>
+        </article>
+        <article className="metric-card">
+          <Activity size={22} />
+          <span>Code splitting</span>
+          <strong>vendor + icons</strong>
+        </article>
+        <article className="metric-card">
+          <RefreshCw size={22} />
+          <span>HMR demo renders</span>
+          <strong>{renderCount}</strong>
+        </article>
       </section>
 
       <section className="panel hmr-panel">
         <div>
           <p className="eyebrow">HMR / INTERACTIVITY</p>
           <h2>Uji interaktivitas development server</h2>
-          <p>Ubah teks pada App.tsx, simpan, lalu amati pembaruan HMR. Tombol di bawah menguji state render.</p>
+          <p>
+            Ubah teks pada App.tsx, simpan, lalu amati pembaruan HMR. Tombol di bawah menguji state
+            render.
+          </p>
         </div>
-        <button type="button" onClick={triggerHmrDemo}>Trigger State Render: {renderCount}</button>
+        <button type="button" onClick={triggerHmrDemo}>
+          Trigger State Render: {renderCount}
+        </button>
         <small>Interaksi terakhir: {lastUpdated}</small>
       </section>
 
       <section className="panel">
         <div className="section-heading">
-          <div><p className="eyebrow">BENCHMARK REFERENCE</p><h2>Toolchain modern</h2></div>
-          <span>Catatan: angka di bawah adalah referensi modul, bukan hasil benchmark mesin pengguna.</span>
+          <div>
+            <p className="eyebrow">BENCHMARK REFERENCE</p>
+            <h2>Toolchain modern</h2>
+          </div>
+          <span>
+            Catatan: angka di bawah adalah referensi modul, bukan hasil benchmark mesin pengguna.
+          </span>
         </div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Toolchain</th><th>Build Time</th><th>HMR</th><th>Catatan</th></tr></thead>
-            <tbody>{metrics.map((metric) => <tr key={metric.tool}><td><strong>{metric.tool}</strong></td><td>{metric.buildTimeMs} ms</td><td>{metric.hmrTimeMs} ms</td><td>{metric.note}</td></tr>)}</tbody>
+            <thead>
+              <tr>
+                <th>Toolchain</th>
+                <th>Build Time</th>
+                <th>HMR</th>
+                <th>Catatan</th>
+              </tr>
+            </thead>
+            <tbody>
+              {metrics.map((metric) => (
+                <tr key={metric.tool}>
+                  <td>
+                    <strong>{metric.tool}</strong>
+                  </td>
+                  <td>{metric.buildTimeMs} ms</td>
+                  <td>{metric.hmrTimeMs} ms</td>
+                  <td>{metric.note}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </section>

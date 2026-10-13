@@ -1,7 +1,8 @@
 import { AlertTriangle, CheckCircle2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import { calculateRisk, studentsDb } from "@/lib/mockDb";
+import { studentsDb } from "@/lib/mockDb";
+import { calculateRisk } from "@/lib/risk";
 
 /**
  * React Server Component used to demonstrate Streaming SSR.

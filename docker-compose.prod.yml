@@ -1,0 +1,101 @@
+# Deploy ke server/internet: hanya Caddy (80/443) yang terbuka. web, api, db, redis tidak punya port publik.
+#   cp .env.example .env     (isi semua variabel di bagian "production", lihat docs/DEPLOY.md)
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml exec api flask --app run.py create-admin
+# Berbeda dari docker-compose.yml (demo): tanpa Mailpit dan tanpa akun demo, SMTP asli wajib.
+x-hardening: &hardening
+  restart: unless-stopped
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+
+services:
+  caddy:
+    <<: *hardening
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?isi DOMAIN di .env (mis. sew.kampus.ac.id)}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    cap_add: [NET_BIND_SERVICE]
+    depends_on:
+      web:
+        condition: service_healthy
+
+  web:
+    <<: *hardening
+    build: .
+    environment:
+      BACKEND_URL: http://api:5000
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?isi JWT_SECRET_KEY di .env (>= 32 karakter, sama dengan backend)}
+    read_only: true
+    tmpfs: [/tmp, /app/.next/cache]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    <<: *hardening
+    build: ./backend
+    environment:
+      APP_ENV: production
+      DATABASE_URL: mysql+pymysql://sew:${MYSQL_APP_PASSWORD:?isi MYSQL_APP_PASSWORD di .env}@db:3306/student_early_warning
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?isi JWT_SECRET_KEY di .env}
+      TRUSTED_PROXIES: "1"
+      RATELIMIT_STORAGE_URI: redis://redis:6379/0
+      CORS_ORIGINS: https://${DOMAIN}
+      FRONTEND_URL: https://${DOMAIN}
+      MAIL_HOST: ${MAIL_HOST:?isi MAIL_HOST (SMTP asli) di .env}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_USE_TLS: ${MAIL_USE_TLS:-true}
+      MAIL_FROM: ${MAIL_FROM:?isi MAIL_FROM di .env}
+    read_only: true
+    tmpfs: [/tmp, /home/appuser/.gunicorn]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:5000/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  db:
+    <<: *hardening
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?isi MYSQL_ROOT_PASSWORD di .env}
+      MYSQL_DATABASE: student_early_warning
+      MYSQL_USER: sew
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:?isi MYSQL_APP_PASSWORD di .env}
+    volumes: [dbdata:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # MySQL perlu menulis ke datadir dan beberapa capability untuk ganti user; tidak memakai cap_drop ALL.
+    cap_drop: []
+
+  redis:
+    <<: *hardening
+    image: redis:7-alpine
+    user: redis   # langsung sebagai user redis, jadi tidak butuh capability SETUID/SETGID untuk menurunkan hak
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    read_only: true
+
+volumes:
+  dbdata:
+  caddy_data:
+  caddy_config:

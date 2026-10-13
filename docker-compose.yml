@@ -1,0 +1,60 @@
+# Seluruh sistem: frontend (web) + backend (api) + MySQL (db) + kotak surat tiruan (mailpit).
+#   cp .env.example .env     (isi JWT_SECRET_KEY, MYSQL_ROOT_PASSWORD, SEED_PASSWORD)
+#   docker compose up --build
+#   docker compose exec api python seed.py      (akun demo, sekali saja)
+# Web: http://localhost:3000   Email tiruan (verifikasi/reset): http://localhost:8025
+# Mailpit hanya menampung email untuk demo. Untuk email sungguhan, ganti MAIL_* dengan SMTP asli dan hapus service mailpit.
+services:
+  web:
+    build: .
+    environment:
+      BACKEND_URL: http://api:5000
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?isi JWT_SECRET_KEY di .env (>= 32 karakter, sama dengan backend)}
+      # Mode demo (hanya lokal): dropdown akun demo di halaman login mengisi password seed secara otomatis.
+      DEMO_MODE: "1"
+      DEMO_PASSWORD: ${SEED_PASSWORD:-}
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on: [api]
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    environment:
+      APP_ENV: production
+      DATABASE_URL: mysql+pymysql://root:${MYSQL_ROOT_PASSWORD:?isi MYSQL_ROOT_PASSWORD di .env}@db:3306/student_early_warning
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?isi JWT_SECRET_KEY di .env}
+      SEED_PASSWORD: ${SEED_PASSWORD:-}
+      TRUSTED_PROXIES: "1"   # hanya service web yang bisa menjangkau api; IP klien dibaca dari X-Forwarded-For
+      CORS_ORIGINS: http://localhost:3000
+      FRONTEND_URL: http://localhost:3000
+      MAIL_HOST: ${MAIL_HOST:-mailpit}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_USE_TLS: ${MAIL_USE_TLS:-false}
+      MAIL_FROM: ${MAIL_FROM:-Student Early Warning <no-reply@sew.local>}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?isi MYSQL_ROOT_PASSWORD di .env}
+      MYSQL_DATABASE: student_early_warning
+    volumes: [dbdata:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit
+    ports: ["127.0.0.1:8025:8025"]
+    restart: unless-stopped
+
+volumes:
+  dbdata:

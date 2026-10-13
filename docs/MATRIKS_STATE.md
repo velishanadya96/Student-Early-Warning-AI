@@ -12,3 +12,8 @@
 | Keyword pencarian | Local Component State | React | Filter tampilan lokal |
 
 Prinsip utama: data dari API tidak disimpan ke Zustand. Zustand hanya menangani Client UI State, sedangkan TanStack Query menangani Server State.
+
+## Catatan tambahan
+- Identitas pengguna yang sedang login adalah data sesi, diambil lewat `GET /api/auth/me` (TanStack Query, key `["session"]`). Token disimpan di cookie HttpOnly sehingga tidak ada di state client.
+- Data akademik untuk Mahasiswa dan Orang Tua tetap server state (TanStack Query: `useCurrentStudent`, `useLinkedStudent`) dan sudah disaring server per pengguna.
+- Daftar akun di Manajemen Pengguna juga server state (`["users"]`).

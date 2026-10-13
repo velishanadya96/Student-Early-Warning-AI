@@ -1,6 +1,6 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import path from "node:path";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
@@ -21,9 +21,12 @@ export default defineConfig({
     minify: "esbuild",
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          icons: ["lucide-react"],
+        // Bentuk fungsi didukung Rollup dan Rolldown (Vite 8); bentuk objek hanya Rollup.
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return undefined;
+          if (/node_modules[\\/]lucide-react[\\/]/.test(id)) return "icons";
+          if (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return "vendor";
+          return undefined;
         },
       },
     },

@@ -1,0 +1,8 @@
+# Pemilik wajib me-review perubahan pada bagian sensitif (aktifkan "Require review from Code Owners" di branch rule).
+/backend/app/auth/     @velishanadya96
+/backend/app/security.py @velishanadya96
+/middleware.ts         @velishanadya96
+/lib/server/           @velishanadya96
+/docker-compose*.yml   @velishanadya96
+/deploy/               @velishanadya96
+/.github/              @velishanadya96

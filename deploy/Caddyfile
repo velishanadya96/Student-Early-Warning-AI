@@ -1,0 +1,19 @@
+# Satu-satunya pintu masuk dari internet: TLS otomatis (Let's Encrypt) untuk $DOMAIN.
+# DOMAIN=localhost memakai sertifikat internal Caddy (untuk uji lokal).
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Caddy menimpa X-Forwarded-For dari klien dengan IP asli sambungan, jadi tidak bisa dipalsukan.
+	reverse_proxy web:3000 {
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	header {
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

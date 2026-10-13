@@ -1,0 +1,82 @@
+{
+  "mesin": {
+    "tanggal": "2026-10-13T15:33:45.005Z",
+    "os": "Darwin 25.6.0 (arm64)",
+    "cpu": "Apple M4 x10",
+    "ramGB": 16,
+    "node": "v26.1.0",
+    "ulangan": 5
+  },
+  "versi": {
+    "next": "15.5.25",
+    "typescriptNext": "5.9.3",
+    "eslint": "9.39.5",
+    "vite": "8.3.4",
+    "typescriptVite": "7.0.2",
+    "biome": "1.9.4"
+  },
+  "next": {
+    "typecheck": {
+      "median": 2123,
+      "min": 2122,
+      "max": 2138,
+      "runs": 5
+    },
+    "lint": {
+      "median": 1350,
+      "min": 1339,
+      "max": 1390,
+      "runs": 5
+    },
+    "build": {
+      "median": 14692,
+      "min": 14317,
+      "max": 15462,
+      "runs": 5
+    },
+    "coldStart": {
+      "median": 4400,
+      "min": 4211,
+      "max": 4469,
+      "runs": 5
+    },
+    "hmr": {
+      "median": 306,
+      "min": 294,
+      "max": 359,
+      "runs": 5
+    }
+  },
+  "vite": {
+    "typecheck": {
+      "median": 133,
+      "min": 132,
+      "max": 137,
+      "runs": 5
+    },
+    "lint": {
+      "median": 53,
+      "min": 51,
+      "max": 56,
+      "runs": 5
+    },
+    "build": {
+      "median": 325,
+      "min": 316,
+      "max": 525,
+      "runs": 5
+    },
+    "coldStart": {
+      "median": 215,
+      "min": 202,
+      "max": 221,
+      "runs": 5
+    },
+    "hmr": {
+      "median": 7,
+      "min": 3,
+      "max": 16,
+      "runs": 5
+    }
+  }
+}

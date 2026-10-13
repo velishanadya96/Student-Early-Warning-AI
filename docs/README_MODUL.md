@@ -36,7 +36,7 @@
 - [x] Streaming SSR dengan Suspense
 - [x] Server-side dashboard snapshot
 - [x] Nested dashboard layout
-- [x] Middleware
+- [x] Middleware (verifikasi JWT, halaman dan API)
 - [x] Metadata API
 - [x] Skeleton loading
 
@@ -61,6 +61,6 @@
 - [x] Esbuild minification
 - [x] Manual chunks untuk vendor/icons
 - [x] HMR interaction demo
-- [x] CI quality gate
+- [x] CI quality gate (di root repo: `.github/workflows/quality.yml`)
 - [x] SonarQube configuration
 - [x] Matriks migrasi + benchmark PDF

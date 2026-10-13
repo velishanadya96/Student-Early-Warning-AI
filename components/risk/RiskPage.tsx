@@ -17,7 +17,7 @@ export default function RiskPage() {
       <Card>
         <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter kategori risiko">
-            {(["Semua", "Rendah", "Sedang", "Tinggi"] as const).map((item) => <button key={item} onClick={() => setFilter(item)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${filter === item ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>{item}</button>)}
+            {(["Semua", "Rendah", "Sedang", "Tinggi"] as const).map((item) => <button type="button" key={item} aria-pressed={filter === item} onClick={() => setFilter(item)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${filter === item ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>{item}</button>)}
           </div>
           <Button size="sm" variant="secondary" onClick={() => refetch()}>Refresh</Button>
         </div>

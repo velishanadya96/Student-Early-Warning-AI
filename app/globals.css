@@ -50,3 +50,42 @@ button { cursor: pointer; }
   100% { transform: translateX(100%); }
 }
 section[id] { scroll-margin-top: 92px; }
+
+/* ---------- Mode gelap ----------
+   Shell menandai wrapper dengan data-theme="dark". Komponen memakai utilitas
+   Tailwind terang, jadi warna dasarnya ditimpa di sini. */
+[data-theme="dark"] { color-scheme: dark; background: #020617; color: #e2e8f0; }
+[data-theme="dark"] .card { background: #0f172a; border-color: #1e293b; box-shadow: none; }
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-white\/95,
+[data-theme="dark"] .bg-white\/70 { background-color: #0f172a; }
+[data-theme="dark"] .bg-slate-50 { background-color: #020617; }
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .hover\:bg-slate-100:hover,
+[data-theme="dark"] .hover\:bg-slate-50:hover { background-color: #1e293b; }
+[data-theme="dark"] .bg-blue-50,
+[data-theme="dark"] .bg-blue-50\/40,
+[data-theme="dark"] .bg-blue-50\/60,
+[data-theme="dark"] .bg-blue-100 { background-color: #172554; }
+[data-theme="dark"] .bg-red-50,
+[data-theme="dark"] .bg-red-50\/40 { background-color: #450a0a; }
+[data-theme="dark"] .bg-amber-50 { background-color: #451a03; }
+[data-theme="dark"] .bg-emerald-50 { background-color: #022c22; }
+[data-theme="dark"] .text-slate-950,
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-slate-800,
+[data-theme="dark"] .text-slate-700 { color: #e2e8f0; }
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-500 { color: #94a3b8; }
+[data-theme="dark"] .text-blue-700 { color: #93c5fd; }
+[data-theme="dark"] .text-red-700 { color: #fca5a5; }
+[data-theme="dark"] .text-amber-900,
+[data-theme="dark"] .text-amber-800 { color: #fcd34d; }
+[data-theme="dark"] .text-emerald-700 { color: #6ee7b7; }
+[data-theme="dark"] .border,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-300 { border-color: #1e293b; }
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea { background-color: #0f172a; color: #e2e8f0; }
+[data-theme="dark"] .skeleton { background: #1e293b; }

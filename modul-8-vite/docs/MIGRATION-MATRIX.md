@@ -10,9 +10,9 @@
 | Code splitting | `manualChunks.vendor` + `manualChunks.icons` | `vite.config.ts` |
 | Esbuild minification | `minify: "esbuild"` | `vite.config.ts` |
 | HMR | Interactive counter + documented measurement procedure | `src/App.tsx`, `docs/BENCHMARK.md` |
-| CI/CD quality gate | GitHub Actions: typecheck → Biome → build | `.github/workflows/quality.yml` |
+| CI/CD quality gate | GitHub Actions: typecheck → Biome → build | `.github/workflows/quality.yml` (root repo, job `vite`) |
 | SonarQube | `sonar-project.properties` | Static analysis configuration |
-| Benchmark PDF | Generated separately in project root | `Modul-8-Migrasi-Benchmark.pdf` |
+| Benchmark | Skrip pengukuran + hasil terukur + PDF ringkas | `../scripts/benchmark.mjs`, `docs/BENCHMARK.md`, `Modul-8-Migrasi-Benchmark.pdf` |
 
 ## Catatan
-Angka benchmark perangkat lokal harus diisi setelah pengukuran. Angka yang tertulis di dashboard adalah referensi yang diberikan oleh modul, bukan klaim pengukuran mesin pengguna.
+Angka benchmark di `docs/BENCHMARK.md` diukur dengan `scripts/benchmark.mjs` pada satu mesin (spesifikasi tercantum di sana) dan perlu diulang di perangkat masing-masing untuk laporan. Angka di dashboard demo adalah referensi modul, bukan hasil pengukuran.

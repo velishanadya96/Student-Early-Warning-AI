@@ -4,3 +4,12 @@ out
 .env*
 npm-debug.log*
 .DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Test / coverage
+coverage
+
+# contoh env boleh di-commit
+!.env.example

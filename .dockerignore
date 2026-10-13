@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.github
+backend
+modul-8-vite
+docs
+tests
+coverage
+.env
+.env.*
+!.env.example
+*.md

@@ -1,24 +1,38 @@
-# Benchmark Modul 8 — Student Early Warning AI
+# Benchmark Modul 8, Student Early Warning AI
 
 ## Tujuan
-Mencatat cold start development server, waktu HMR, dan production build setelah migrasi build pipeline ke Vite.
+Membandingkan pipeline build proyek sebelum migrasi (aplikasi Next.js di root repo) dengan sesudah migrasi (subproject Vite + Biome di `modul-8-vite/`): cold start dev server, kecepatan reload saat file diubah, production build, typecheck, dan lint.
 
-## Cara ukur di mesin sendiri
+## Hasil pengukuran
 
-1. Install dependency: `npm install`
-2. Cold start: jalankan `npm run dev -- --host`, catat waktu dari command sampai URL siap di terminal.
-3. HMR: ubah satu teks di `src/App.tsx`, simpan, lalu catat waktu pembaruan menggunakan terminal/browser DevTools.
-4. Production build: jalankan `npm run build` dan catat durasi command.
-5. Quality gate: jalankan `npm run check` dan `npm run typecheck`.
+Diukur dengan skrip [`scripts/benchmark.mjs`](../../scripts/benchmark.mjs), **5 ulangan per metrik**, nilai = median ms (min–maks).
 
-> Nilai benchmark mesin pengguna **tidak boleh diganti dengan angka referensi modul**. Dashboard demo menampilkan angka referensi modul hanya untuk kebutuhan visualisasi praktikum.
+**Mesin:** Apple M4 (10 core), RAM 16 GB, macOS (Darwin 25.6.0 arm64), Node v26.1.0. **Tanggal:** 13 Oktober 2026.
+**Versi:** Next 15.5.25 + TypeScript 5.9.3 + ESLint 9.39.5 (sebelum); Vite 8.3.4 + TypeScript 7.0.2 + Biome 1.9.4 (sesudah).
 
-## Tabel pengisian
+| Pengujian | Sebelum migrasi: Next.js (ms) | Sesudah: Vite (ms) |
+|---|---:|---:|
+| Cold start dev server (sampai halaman pertama menjawab 200) | 4400 (4211–4469) | 215 (202–221) |
+| HMR / edit file sampai versi baru disajikan server | 306 (294–359) | 7 (3–16) |
+| Production build (folder output dihapus dulu) | 14692 (14317–15462) | 325 (316–525) |
+| Typecheck (cache TypeScript dihapus dulu) | 2123 (2122–2138) | 133 (132–137) |
+| Lint (ESLint di Next, Biome di Vite) | 1350 (1339–1390) | 53 (51–56) |
 
-| Pengujian | Sebelum migrasi | Setelah Vite | Satuan | Bukti |
-|---|---:|---:|---|---|
-| Cold start dev server | Isi hasil pengukuran | Isi hasil pengukuran | ms/detik | screenshot terminal |
-| HMR update | Isi hasil pengukuran | Isi hasil pengukuran | ms | screenshot browser/terminal |
-| Production build | Isi hasil pengukuran | Isi hasil pengukuran | ms/detik | screenshot terminal |
-| Typecheck | Isi hasil pengukuran | Isi hasil pengukuran | ms/detik | terminal |
-| Biome check | N/A | Isi hasil pengukuran | ms/detik | terminal |
+Data mentah: [`benchmark-results.json`](benchmark-results.json).
+
+## Cara membaca angka ini (batasan yang jujur)
+- **Bukan perbandingan murni Webpack vs Vite.** Sisi "sebelum" adalah aplikasi penuh (26 halaman, middleware, API, dua dependency besar), sedangkan sisi "sesudah" adalah satu halaman demo. Selisih besar sebagian besar karena ukuran proyeknya berbeda, bukan hanya karena bundler.
+- **Versi TypeScript berbeda.** Subproject Vite memakai TypeScript 7 (compiler native, jauh lebih cepat) sedangkan aplikasi utama TypeScript 5.9. Angka typecheck terutama menunjukkan perbedaan itu.
+- **HMR diukur di sisi server**: dari file disimpan sampai server mampu menyajikan versi barunya (Next: halaman `/login` diminta ulang; Vite: modul `/src/App.tsx` diminta ulang). Ini bukan waktu sampai tampilan di browser berubah.
+- **Cold start** dihitung dari proses dijalankan sampai halaman pertama menjawab HTTP 200 (Next sudah termasuk kompilasi halaman `/login`).
+- Angka di dashboard demo (`src/App.tsx`) bertanda "angka contoh dari modul" adalah referensi, **bukan** hasil di atas.
+
+## Cara mengulang di laptop sendiri
+Angka di atas diukur di satu mesin. Untuk laporan, ulangi di laptop masing-masing (hasilnya akan berbeda):
+
+```bash
+npm install                      # di root repo
+npm install --prefix modul-8-vite
+node scripts/benchmark.mjs --runs=5
+```
+Skrip menulis `docs/benchmark-results.json` dan `docs/benchmark-results.md`, lalu mencetak tabel ke terminal (screenshot terminal ini bisa dipakai sebagai bukti). Jalankan saat laptop tidak sedang mengerjakan hal berat lain, dan tutup server dev (`npm run dev`) lebih dulu karena skrip memakai port 3071 dan 3072.

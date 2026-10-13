@@ -6,10 +6,10 @@ Implementasi proyek mengikuti kebutuhan Meta-Framework pada brief proyek akhir:
 - **Nested Layouts**: dashboard Dosen, Admin, Kaprodi, Mahasiswa, dan Orang Tua memiliki layout masing-masing.
 - **React Server Components (RSC)**: page-level components tetap menjadi Server Component secara default; interaksi browser dipisahkan ke komponen yang memakai `"use client"`.
 - **Streaming SSR + Suspense**: `/dashboard` memiliki `Suspense` boundary yang membungkus `DashboardServerSnapshot`. Snapshot diproses di server dan fallback dikirim lebih dahulu sebelum konten snapshot selesai.
-- **Loading UI**: tersedia `loading.tsx` pada route dashboard utama, mahasiswa, Admin, dan Kaprodi untuk state transisi route.
-- **Error UI**: tersedia `error.tsx` pada dashboard utama dan mahasiswa untuk penanganan error route.
-- **Middleware route guard**: `middleware.ts` membatasi route berdasarkan role.
-- **Metadata API**: page-level `metadata` digunakan untuk title dan description halaman.
+- **Loading UI**: tersedia `loading.tsx` pada semua dashboard (Dosen PA, Mahasiswa, Admin, Kaprodi, Orang Tua) dan halaman login.
+- **Error UI**: tersedia `error.tsx` pada semua dashboard dan halaman login.
+- **Middleware route guard**: `middleware.ts` memverifikasi JWT (cookie HttpOnly), membatasi route dashboard berdasarkan role, dan menjaga `/api/*` (lihat [KEAMANAN.md](KEAMANAN.md)).
+- **Metadata API**: page-level `metadata` dipakai untuk title dan description di landing, login, register, dan semua halaman dashboard.
 
 ## Batas Client/Server
 

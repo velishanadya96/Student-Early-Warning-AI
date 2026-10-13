@@ -1,44 +1,210 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, FileSpreadsheet, RefreshCw, UploadCloud, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { studentsDb } from "@/lib/mockDb";
+import { useStudentsQuery } from "@/hooks/useData";
+import { createStudent, updateStudent } from "@/lib/api";
+import { csvToRecords } from "@/lib/csv";
+import { studentSchema } from "@/lib/schemas";
+import { asStudentId, type Student } from "@/lib/types";
 
-function parseCsv(text: string) {
-  const lines = text.trim().split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) throw new Error("File CSV belum memiliki data.");
-  const headers = (lines[0] ?? "").split(",").map((value) => value.trim().toLowerCase());
-  const required = ["nim", "nama", "ipk", "presensi", "lms", "tugas"];
-  const missing = required.filter((header) => !headers.includes(header));
-  if (missing.length) throw new Error(`Kolom wajib belum lengkap: ${missing.join(", ")}.`);
-  return lines.slice(1).map((line) => { const values = line.split(",").map((value) => value.trim()); return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])); });
+const REQUIRED_COLUMNS = ["nim", "nama", "ipk", "presensi", "lms", "tugas"] as const;
+const DEFAULT_PRODI = "D3 Teknik Informatika";
+
+type ParsedImport = { valid: Student[]; errors: string[] };
+
+function toStudents(records: Array<Record<string, string>>): ParsedImport {
+  const valid: Student[] = [];
+  const errors: string[] = [];
+  records.forEach((row, index) => {
+    const result = studentSchema.safeParse({
+      nim: row.nim,
+      name: row.nama,
+      prodi: row.prodi || DEFAULT_PRODI,
+      angkatan: row.angkatan ? Number(row.angkatan) : new Date().getFullYear(),
+      gpa: Number((row.ipk ?? "").replace(",", ".")),
+      attendance: Number(row.presensi),
+      lms: Number(row.lms),
+      assignments: Number(row.tugas),
+    });
+    if (result.success) valid.push({ ...result.data, nim: asStudentId(result.data.nim) });
+    else errors.push(`Baris ${index + 2}: ${result.error.issues[0]?.message ?? "data tidak valid"}`);
+  });
+  return { valid, errors };
 }
 
 export default function AdminData() {
+  const qc = useQueryClient();
+  const { data: students = [] } = useStudentsQuery();
   const [status, setStatus] = useState("Belum ada sinkronisasi pada sesi ini.");
   const [fileName, setFileName] = useState("");
-  const [preview, setPreview] = useState<Record<string,string>[]>([]);
+  const [parsed, setParsed] = useState<ParsedImport | null>(null);
   const [error, setError] = useState("");
-  const totalPreview = useMemo(() => preview.length || studentsDb.length, [preview.length]);
+  const [importing, setImporting] = useState(false);
 
-  function sync(source: string) { setError(""); setStatus(`Sinkronisasi ${source} sedang diproses...`); window.setTimeout(() => setStatus(`${source} berhasil disinkronkan pada ${new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}.`), 500); }
+  const previewRows: Student[] = parsed ? parsed.valid.slice(0, 5) : students.slice(0, 5);
+  const totalRows = parsed ? parsed.valid.length : students.length;
+
+  function sync() {
+    setError("");
+    setStatus("Sinkronisasi SIAKAD (simulasi) sedang diproses...");
+    window.setTimeout(() => {
+      void qc.invalidateQueries({ queryKey: ["students"] });
+      setStatus(`Sinkronisasi SIAKAD (simulasi) selesai pada ${new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}.`);
+    }, 500);
+  }
 
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (!file) return;
-    setFileName(file.name); setError("");
-    if (!file.name.toLowerCase().endsWith(".csv")) { setError("Demo impor saat ini menerima file CSV. Format Excel dapat ditambahkan saat backend tersedia."); return; }
+    setFileName(file.name);
+    setError("");
+    setParsed(null);
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      setError("Impor saat ini hanya menerima file CSV. Format Excel dapat ditambahkan saat backend tersedia.");
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = () => { try { const rows = parseCsv(String(reader.result)); setPreview(rows.slice(0, 5)); setStatus(`File ${file.name} tervalidasi. ${rows.length} baris siap diimpor.`); } catch (err) { setError(err instanceof Error ? err.message : "File tidak dapat dibaca."); setPreview([]); } };
+    reader.onerror = () => setError("File tidak dapat dibaca.");
+    reader.onload = () => {
+      try {
+        const result = toStudents(csvToRecords(String(reader.result), REQUIRED_COLUMNS));
+        setParsed(result);
+        setStatus(`File ${file.name} dibaca: ${result.valid.length} baris valid, ${result.errors.length} baris bermasalah.`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "File tidak dapat dibaca.");
+      }
+    };
     reader.readAsText(file);
   }
 
-  return <section className="space-y-6"><div><p className="text-sm font-semibold text-blue-600">Administrator</p><h1 className="text-2xl font-bold">Manajemen Data Akademik</h1><p className="mt-1 text-sm text-slate-500">FR-02 dan FR-03: validasi serta simulasi impor data SIAKAD dan LMS.</p></div>
-    <div className="grid gap-5 lg:grid-cols-2"><Card><div className="flex items-start justify-between"><div><FileSpreadsheet className="text-blue-600"/><h2 className="mt-3 font-bold">SIAKAD</h2><p className="mt-1 text-sm text-slate-500">Nilai, IPK/IPS, dan presensi mahasiswa.</p></div><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Terhubung</span></div><Button className="mt-5" onClick={() => sync("SIAKAD")}><RefreshCw size={16} className="mr-2"/>Sinkronkan Data</Button></Card>
-      <Card><div className="flex items-start justify-between"><div><FileSpreadsheet className="text-indigo-600"/><h2 className="mt-3 font-bold">LMS</h2><p className="mt-1 text-sm text-slate-500">Aktivitas belajar dan pengumpulan tugas.</p></div><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Terhubung</span></div><label className="mt-5 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold hover:bg-slate-50"><UploadCloud size={17} className="mr-2"/>Pilih CSV LMS<input type="file" accept=".csv,text/csv" className="sr-only" onChange={handleFile}/></label>{fileName && <p className="mt-2 text-xs text-slate-500">File: {fileName}</p>}</Card></div>
-    <Card><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-bold">Status Pipeline</h2><p className="text-sm text-slate-500">{status}</p></div>{error ? <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600"><XCircle size={16}/>Validasi gagal</span> : <span className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600"><CheckCircle2 size={16}/>Siap</span>}</div>{error && <div role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}</Card>
-    <Card><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-bold">Preview Data</h2><p className="text-sm text-slate-500">Menampilkan maksimal 5 baris dari data yang tersedia.</p></div><span className="text-xs font-semibold text-slate-400">{totalPreview} baris</span></div><div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">NIM</th><th className="p-3">Nama</th><th className="p-3">IPK</th><th className="p-3">Presensi</th><th className="p-3">LMS</th><th className="p-3">Tugas</th></tr></thead><tbody>{preview.length ? preview.map((row,index)=><tr key={`${row.nim}-${index}`} className="border-b"><td className="p-3">{row.nim}</td><td className="p-3 font-semibold">{row.nama}</td><td className="p-3">{row.ipk}</td><td className="p-3">{row.presensi}%</td><td className="p-3">{row.lms}%</td><td className="p-3">{row.tugas}%</td></tr>) : studentsDb.slice(0,5).map((student)=><tr key={student.nim} className="border-b"><td className="p-3">{student.nim}</td><td className="p-3 font-semibold">{student.name}</td><td className="p-3">{student.gpa.toFixed(2)}</td><td className="p-3">{student.attendance}%</td><td className="p-3">{student.lms}%</td><td className="p-3">{student.assignments}%</td></tr>)}</tbody></table></div></Card>
-  </section>;
+  async function runImport() {
+    if (!parsed || parsed.valid.length === 0) return;
+    setImporting(true);
+    setError("");
+    const existing = new Set(students.map((student) => String(student.nim)));
+    let created = 0;
+    let updated = 0;
+    const failures: string[] = [];
+    for (const student of parsed.valid) {
+      try {
+        if (existing.has(String(student.nim))) {
+          await updateStudent(student);
+          updated++;
+        } else {
+          await createStudent(student);
+          created++;
+        }
+      } catch (err) {
+        failures.push(`${student.nim}: ${err instanceof Error ? err.message : "gagal disimpan"}`);
+      }
+    }
+    await Promise.all(["students", "student-options", "risks"].map((key) => qc.invalidateQueries({ queryKey: [key] })));
+    setImporting(false);
+    setParsed(null);
+    setStatus(`Impor selesai: ${created} ditambahkan, ${updated} diperbarui, ${failures.length} gagal.`);
+    if (failures.length) setError(failures.slice(0, 5).join("; "));
+  }
+
+  const rowErrors = parsed?.errors ?? [];
+
+  return (
+    <section className="space-y-6">
+      <div>
+        <p className="text-sm font-semibold text-blue-600">Administrator</p>
+        <h1 className="text-2xl font-bold">Manajemen Data Akademik</h1>
+        <p className="mt-1 text-sm text-slate-500">FR-02 dan FR-03: impor data akademik dan LMS dari file CSV.</p>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Card>
+          <div className="flex items-start justify-between">
+            <div>
+              <FileSpreadsheet className="text-blue-600" />
+              <h2 className="mt-3 font-bold">SIAKAD</h2>
+              <p className="mt-1 text-sm text-slate-500">Nilai, IPK/IPS, dan presensi mahasiswa.</p>
+            </div>
+            <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Simulasi</span>
+          </div>
+          <Button className="mt-5" onClick={sync}><RefreshCw size={16} className="mr-2" />Sinkronkan Data</Button>
+        </Card>
+
+        <Card>
+          <div className="flex items-start justify-between">
+            <div>
+              <FileSpreadsheet className="text-indigo-600" />
+              <h2 className="mt-3 font-bold">Impor CSV</h2>
+              <p className="mt-1 text-sm text-slate-500">Kolom wajib: {REQUIRED_COLUMNS.join(", ")}. Opsional: prodi, angkatan. Pemisah koma atau titik koma.</p>
+            </div>
+            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Aktif</span>
+          </div>
+          <label className="mt-5 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold hover:bg-slate-50">
+            <UploadCloud size={17} className="mr-2" />Pilih file CSV
+            <input type="file" accept=".csv,text/csv" className="sr-only" onChange={handleFile} />
+          </label>
+          {fileName && <p className="mt-2 text-xs text-slate-500">File: {fileName}</p>}
+        </Card>
+      </div>
+
+      <Card>
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="text-lg font-bold">Status Pipeline</h2>
+            <p className="text-sm text-slate-500" role="status">{status}</p>
+          </div>
+          {error ? (
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600"><XCircle size={16} />Ada masalah</span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600"><CheckCircle2 size={16} />Siap</span>
+          )}
+        </div>
+        {error && <div role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {rowErrors.length > 0 && (
+          <div role="alert" className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+            <p className="font-semibold">{rowErrors.length} baris dilewati:</p>
+            <ul className="mt-1 list-disc pl-5">{rowErrors.slice(0, 5).map((message) => <li key={message}>{message}</li>)}</ul>
+            {rowErrors.length > 5 && <p className="mt-1">…dan {rowErrors.length - 5} baris lainnya.</p>}
+          </div>
+        )}
+        {parsed && parsed.valid.length > 0 && (
+          <Button className="mt-4" onClick={runImport} disabled={importing}>
+            {importing ? "Mengimpor..." : `Impor ${parsed.valid.length} baris valid`}
+          </Button>
+        )}
+      </Card>
+
+      <Card>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold">{parsed ? "Preview Impor" : "Data Saat Ini"}</h2>
+            <p className="text-sm text-slate-500">Menampilkan maksimal 5 baris.</p>
+          </div>
+          <span className="text-xs font-semibold text-slate-400">{totalRows} baris</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px] text-left text-sm">
+            <thead className="border-b text-xs uppercase text-slate-500">
+              <tr><th className="p-3">NIM</th><th className="p-3">Nama</th><th className="p-3">IPK</th><th className="p-3">Presensi</th><th className="p-3">LMS</th><th className="p-3">Tugas</th></tr>
+            </thead>
+            <tbody>
+              {previewRows.map((student) => (
+                <tr key={student.nim} className="border-b">
+                  <td className="p-3">{student.nim}</td>
+                  <td className="p-3 font-semibold">{student.name}</td>
+                  <td className="p-3">{student.gpa.toFixed(2)}</td>
+                  <td className="p-3">{student.attendance}%</td>
+                  <td className="p-3">{student.lms}%</td>
+                  <td className="p-3">{student.assignments}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </section>
+  );
 }

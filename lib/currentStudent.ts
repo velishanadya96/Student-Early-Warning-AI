@@ -1,22 +1,13 @@
-"use client";
-
-import { getUserByEmail } from "@/lib/auth";
-import { calculateRisk, studentsDb } from "@/lib/mockDb";
-import type { RiskCategory } from "@/lib/types";
+import { calculateRisk } from "@/lib/risk";
+import type { RiskCategory, Student } from "@/lib/types";
 
 /**
- * SATU SUMBER KEBENARAN UNTUK "SIAPA YANG SEDANG LOGIN"
+ * SATU SUMBER KEBENARAN UNTUK "SIAPA YANG SEDANG LOGIN" (role Mahasiswa).
  *
- * Dipakai oleh Dashboard, Profil Saya, Status Risiko, dan Rekomendasi
- * supaya semua halaman menampilkan mahasiswa yang sama.
- *
- * Aturan penting:
- * - Identitas diambil dari cookie `sew_email` (bukan `sew_nim`),
- *   karena cookie NIM bisa tertinggal dari sesi login sebelumnya.
- * - Kalau akun belum punya data akademik, JANGAN fallback ke
- *   studentsDb[0] (Alya Putri). Kembalikan profil kosong milik user.
+ * Identitas diambil dari sesi login (token yang diverifikasi server). Data akademik
+ * dicocokkan lewat NIM akun. Kalau tidak ada, JANGAN fallback ke mahasiswa lain: kembalikan profil
+ * kosong milik akun tersebut.
  */
-
 export type CurrentStudent = {
   nim: string;
   name: string;
@@ -33,28 +24,10 @@ export type CurrentStudent = {
   hasAcademicData: boolean;
 };
 
-export function readCookie(name: string): string {
-  if (typeof document === "undefined") return "";
-  const raw = document.cookie
-    .split("; ")
-    .find((item) => item.startsWith(`${name}=`));
-  if (!raw) return "";
-  return decodeURIComponent(raw.slice(name.length + 1));
-}
+export type StudentAccount = { name: string; email: string; nim?: string };
 
-export function resolveCurrentStudent(): CurrentStudent | null {
-  const email = readCookie("sew_email").toLowerCase();
-  const role = readCookie("sew_role");
-
-  if (!email || role !== "mahasiswa") return null;
-
-  const account = getUserByEmail(email);
-  if (!account || account.role !== "mahasiswa") return null;
-
-  // Cocokkan data akademik lewat NIM milik akun, bukan cookie sisa sesi lama.
-  const record = account.nim
-    ? studentsDb.find((item) => String(item.nim) === String(account.nim))
-    : undefined;
+export function buildCurrentStudent(account: StudentAccount, students: readonly Student[]): CurrentStudent {
+  const record = account.nim ? students.find((item) => String(item.nim) === account.nim) : undefined;
 
   if (!record) {
     return {
@@ -75,7 +48,6 @@ export function resolveCurrentStudent(): CurrentStudent | null {
   }
 
   const risk = calculateRisk(record);
-
   return {
     nim: String(record.nim),
     name: record.name,

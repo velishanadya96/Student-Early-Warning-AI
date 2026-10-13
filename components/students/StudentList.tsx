@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { useDialog } from "@/hooks/useDialog";
 import { useCreateStudent, useDeleteStudent, useStudentsQuery, useUpdateStudent } from "@/hooks/useData";
 import { studentSchema, type StudentInput } from "@/lib/schemas";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { calculateRisk } from "@/lib/risk";
 import type { Student } from "@/lib/types";
 
 const emptyForm: StudentInput = { nim: "", name: "", prodi: "D3 Teknik Informatika", angkatan: 2026, attendance: 80, gpa: 3, lms: 80, assignments: 80 };
@@ -15,6 +17,7 @@ function StudentModal({ editing, onClose, onSaved }: { editing: Student | null; 
   const update = useUpdateStudent();
   const [form, setForm] = useState<StudentInput>(editing ? { ...editing, nim: String(editing.nim) } : emptyForm);
   const mutation = editing ? update : create;
+  const dialogRef = useDialog<HTMLFormElement>(onClose);
   const [error, setError] = useState("");
 
   function setField<K extends keyof StudentInput>(key: K, value: StudentInput[K]) { setForm((prev) => ({ ...prev, [key]: value })); }
@@ -28,7 +31,7 @@ function StudentModal({ editing, onClose, onSaved }: { editing: Student | null; 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="student-dialog-title">
-      <form onSubmit={submit} className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+      <form ref={dialogRef} onSubmit={submit} className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
         <div className="mb-5 flex items-center justify-between"><div><h2 id="student-dialog-title" className="text-xl font-bold">{editing ? "Edit Mahasiswa" : "Tambah Mahasiswa"}</h2><p className="text-sm text-slate-500">Lengkapi data akademik mahasiswa.</p></div><button type="button" onClick={onClose} aria-label="Tutup form" className="rounded-lg p-2 hover:bg-slate-100"><X size={20} /></button></div>
         {error && <div role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
         <div className="grid gap-4 sm:grid-cols-2">
@@ -55,8 +58,7 @@ export default function StudentList() {
   const filtered = useMemo(() => (data ?? []).filter((s) => {
     const q = keyword.toLowerCase();
     const matchesSearch = s.name.toLowerCase().includes(q) || s.nim.toLowerCase().includes(q);
-    const score = Math.round((100 - s.attendance) * .3 + (100 - (s.gpa / 4) * 100) * .3 + (100 - s.lms) * .2 + (100 - s.assignments) * .2);
-    const category = score >= 70 ? "Tinggi" : score >= 40 ? "Sedang" : "Rendah";
+    const { category } = calculateRisk(s);
     return matchesSearch && (filter === "Semua" || category === filter);
   }), [data, keyword, filter]);
 
