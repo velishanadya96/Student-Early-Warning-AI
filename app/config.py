@@ -33,3 +33,11 @@ class Config:
     # Penguncian akun setelah login salah berulang (per akun, di luar rate limit per IP).
     MAX_FAILED_LOGINS = int(os.getenv("MAX_FAILED_LOGINS", "5"))
     LOCKOUT_MINUTES = int(os.getenv("LOCKOUT_MINUTES", "15"))
+
+    # Login/daftar dengan Google. Isi GOOGLE_CLIENT_ID (OAuth Client ID tipe "Web application") untuk mengaktifkan.
+    # Kalau kosong: tombol Google disembunyikan dan pendaftaran memakai verifikasi email lewat tautan.
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+
+    # Domain email yang boleh dipakai akun mahasiswa/dosen/kaprodi/admin, dipisah koma. Kosong = semua domain.
+    # Contoh: ALLOWED_EMAIL_DOMAINS=student.uns.ac.id,uns.ac.id
+    ALLOWED_EMAIL_DOMAINS = [d.strip().lower().lstrip("@") for d in os.getenv("ALLOWED_EMAIL_DOMAINS", "").split(",") if d.strip()]

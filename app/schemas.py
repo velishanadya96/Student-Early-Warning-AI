@@ -23,11 +23,29 @@ def parse(model, data):
         raise ApiError("VALIDASI_GAGAL", msg, 422)
 
 
+def allowed_domains():
+    """Daftar domain yang diizinkan (config ALLOWED_EMAIL_DOMAINS). Kosong = semua domain boleh."""
+    try:
+        from flask import current_app
+        return current_app.config.get("ALLOWED_EMAIL_DOMAINS", [])
+    except RuntimeError:  # di luar app context
+        return []
+
+
+def domain_error(v: str):
+    """Pesan error bila domain email tidak diizinkan, atau None bila boleh."""
+    doms = allowed_domains()
+    if doms and v.rsplit("@", 1)[-1].lower() not in doms:
+        return "Email harus memakai domain: " + ", ".join("@" + d for d in doms) + "."
+    return None
+
+
 def _email(v: str) -> str:
-    """Email SSO wajib untuk akun internal."""
+    """Email akun internal (mahasiswa/dosen/kaprodi/admin); domain dibatasi lewat ALLOWED_EMAIL_DOMAINS bila diatur."""
     v = _email_any(v)
-    if not v.endswith(SSO_DOMAIN):
-        raise ValueError(f"Email harus menggunakan format nama{SSO_DOMAIN}.")
+    msg = domain_error(v)
+    if msg:
+        raise ValueError(msg)
     return v
 
 
@@ -227,8 +245,8 @@ class UserCreateIn(RegisterIn):
 
     @model_validator(mode="after")
     def _by_role(self):
-        if self.role != "orangtua" and not self.email.endswith(SSO_DOMAIN):
-            raise ValueError(f"Email harus menggunakan format nama{SSO_DOMAIN}.")
+        if self.role != "orangtua" and domain_error(self.email):
+            raise ValueError(domain_error(self.email))
         if self.role == "mahasiswa" and not self.nim:
             raise ValueError("NIM wajib diisi untuk akun mahasiswa.")
         if self.role == "orangtua" and not self.nim:
@@ -290,3 +308,85 @@ class ResendIn(BaseModel):
     @classmethod
     def _e(cls, v):
         return (v or "").strip().lower()
+
+
+class GoogleCredentialIn(BaseModel):
+    """ID token dari Google Identity Services (tombol 'Masuk dengan Google')."""
+    credential: str
+
+    @field_validator("credential")
+    @classmethod
+    def _c(cls, v):
+        v = (v or "").strip()
+        if not v or len(v) > 4096:
+            raise ValueError("Kredensial Google tidak valid.")
+        return v
+
+
+class RegisterGoogleIn(GoogleCredentialIn):
+    """Daftar mandiri mahasiswa: identitas (email, nama) dari Google, sisanya dari form."""
+    name: Optional[str] = None
+    password: str
+    nim: str
+    prodi: Optional[str] = "D3 Teknik Informatika"
+    angkatan: Optional[int] = None
+
+    @field_validator("password")
+    @classmethod
+    def _p(cls, v):
+        if len(v) < 8:
+            raise ValueError("Password minimal 8 karakter.")
+        return v
+
+    @field_validator("nim")
+    @classmethod
+    def _nim(cls, v):
+        v = v.strip()
+        if not v.isalnum() or len(v) < 6:
+            raise ValueError("NIM wajib diisi, minimal 6 karakter alfanumerik.")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def _n(cls, v):
+        return v.strip() if v and v.strip() else None
+
+
+class RosterRow(BaseModel):
+    nim: str
+    nama: str
+    prodi: Optional[str] = None
+    angkatan: Optional[int] = None
+    email: Optional[str] = None
+
+    @field_validator("nim")
+    @classmethod
+    def _nim(cls, v):
+        v = str(v).strip()
+        if not v.isalnum() or len(v) < 6:
+            raise ValueError(f"NIM '{v}' tidak valid (minimal 6 karakter alfanumerik).")
+        return v
+
+    @field_validator("nama")
+    @classmethod
+    def _nama(cls, v):
+        v = v.strip()
+        if len(v) < 3:
+            raise ValueError("Nama minimal 3 karakter.")
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def _em(cls, v):
+        return _email_any(v) if v and v.strip() else None
+
+
+class RosterIn(BaseModel):
+    rows: list[RosterRow]
+
+    @field_validator("rows")
+    @classmethod
+    def _r(cls, v):
+        if not v or len(v) > 5000:
+            raise ValueError("Data roster kosong atau lebih dari 5000 baris.")
+        return v

@@ -51,3 +51,11 @@ Login dibatasi 30 percobaan/menit per IP (`LOGIN_RATE_LIMIT`; front-end memanggi
 - Nomor dinormalisasi ke format `62xxxxxxxxxx` (input `0812-3456-7890` atau `+62 812...` diterima).
 - No WA Dosen PA di dashboard orang tua dan no WA orang tua di dashboard Dosen PA diambil lewat relasi (tidak disalin antar tabel).
 - Akun Dosen PA dan orang tua yang dibuat Admin (`POST /users`) wajib mengisi `no_wa`.
+
+## Login Google & roster
+- `GET /auth/config` (publik): status Google, domain yang diizinkan, apakah roster aktif.
+- `POST /auth/google/preview` (publik): cek ID token Google sebelum daftar (email, nama, NIM dari roster).
+- `POST /auth/register`: kalau `GOOGLE_CLIENT_ID` diisi, wajib `credential` (ID token Google). Email = email Google (otomatis terverifikasi).
+- `POST /auth/google`: login dengan Google (akun harus sudah terdaftar, kalau belum 404 `GOOGLE_BELUM_TERDAFTAR`).
+- `POST /users/roster` (admin) & `GET /users/roster/count`: daftar mahasiswa resmi. Jika terisi, daftar mandiri wajib NIM terdaftar + email cocok.
+- Env: `GOOGLE_CLIENT_ID`, `ALLOWED_EMAIL_DOMAINS` (kosong = semua domain). Migrasi `c3d4e5f6a7b8`.

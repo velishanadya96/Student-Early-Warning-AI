@@ -148,3 +148,13 @@ CREATE TABLE IF NOT EXISTS notifikasi (
 ) ENGINE=InnoDB;
 
 CREATE INDEX ix_notifikasi_id_user ON notifikasi (id_user);
+
+
+CREATE TABLE IF NOT EXISTS roster_mahasiswa (
+	nim VARCHAR(20) NOT NULL, 
+	nama VARCHAR(100) NOT NULL, 
+	prodi VARCHAR(100), 
+	angkatan INTEGER, 
+	email VARCHAR(120), 
+	PRIMARY KEY (nim)
+) ENGINE=InnoDB;

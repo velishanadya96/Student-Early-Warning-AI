@@ -5,8 +5,8 @@ from flask import jsonify, request
 from . import users_bp
 from ..extensions import db
 from ..errors import ApiError
-from ..models import User, DosenPA, Mahasiswa
-from ..schemas import SSO_DOMAIN, AssignDosenIn, UserCreateIn, UserUpdateIn, parse
+from ..models import User, DosenPA, Mahasiswa, RosterMahasiswa
+from ..schemas import AssignDosenIn, RosterIn, UserCreateIn, UserUpdateIn, domain_error, parse
 from ..security import hash_password, roles_required
 from ..services import create_user_with_profile
 
@@ -44,8 +44,8 @@ def update_user(id_user):
     user = _get_user(id_user)
     d = parse(UserUpdateIn, request.get_json(silent=True))
     if d.email and d.email != user.email:
-        if user.role != "orangtua" and not d.email.endswith(SSO_DOMAIN):
-            raise ApiError("VALIDASI_GAGAL", f"Email harus menggunakan format nama{SSO_DOMAIN}.", 422)
+        if user.role != "orangtua" and domain_error(d.email):
+            raise ApiError("VALIDASI_GAGAL", domain_error(d.email), 422)
         if User.query.filter_by(email=d.email).first():
             raise ApiError("EMAIL_SUDAH_ADA", "Email sudah terdaftar.", 409)
         user.email = d.email
@@ -88,3 +88,30 @@ def assign_dosen(nim):
     mhs.id_dosen_pa = d.id_dosen_pa
     db.session.commit()
     return jsonify(nim=mhs.nim, id_dosen_pa=mhs.id_dosen_pa)
+
+
+@users_bp.post("/roster")
+@roles_required("admin")
+def import_roster():
+    """Impor/perbarui data mahasiswa resmi (NIM, nama, [email]). Bila roster berisi data, pendaftaran mahasiswa
+    hanya diterima untuk NIM yang ada di sini (dan, bila email diisi, harus cocok dengan akun Google-nya)."""
+    d = parse(RosterIn, request.get_json(silent=True))
+    added = updated = 0
+    for r in d.rows:
+        row = db.session.get(RosterMahasiswa, r.nim)
+        if row:
+            updated += 1
+        else:
+            row = RosterMahasiswa(nim=r.nim)
+            db.session.add(row)
+            added += 1
+        row.nama, row.prodi, row.angkatan, row.email = r.nama, r.prodi, r.angkatan, r.email
+    db.session.commit()
+    log.info("admin impor roster: %s baru, %s diperbarui", added, updated)
+    return jsonify(added=added, updated=updated, total=RosterMahasiswa.query.count()), 200
+
+
+@users_bp.get("/roster/count")
+@roles_required("admin")
+def roster_count():
+    return jsonify(total=RosterMahasiswa.query.count())

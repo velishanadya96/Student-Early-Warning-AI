@@ -89,6 +89,16 @@ class Mahasiswa(db.Model):
     dosen_pa = db.relationship("DosenPA", back_populates="bimbingan")
 
 
+class RosterMahasiswa(db.Model):
+    """Daftar mahasiswa resmi (diimpor Admin dari data kampus/PDDikti). Kalau terisi, daftar mandiri wajib memakai NIM di sini."""
+    __tablename__ = "roster_mahasiswa"
+    nim = db.Column(db.String(20), primary_key=True)
+    nama = db.Column(db.String(100), nullable=False)
+    prodi = db.Column(db.String(100))
+    angkatan = db.Column(db.Integer)
+    email = db.Column(db.String(120))  # opsional: email Google yang diharapkan untuk NIM ini
+
+
 class OrangTua(db.Model):
     """Akun pendamping: satu orang tua memantau satu mahasiswa (nim)."""
     __tablename__ = "orang_tua"
