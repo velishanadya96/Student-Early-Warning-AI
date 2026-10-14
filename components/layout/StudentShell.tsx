@@ -7,6 +7,7 @@ import {
   ShieldAlert, UserRound, Lightbulb, Moon, Sun
 } from "lucide-react";
 import { useUIStore } from "@/store/useUIStore";
+import { clearSession } from "@/lib/authApi";
 
 const navItems = [
   { href: "/dashboard-mahasiswa", label: "Dashboard", icon: LayoutDashboard, key: "student-dashboard" },
@@ -20,12 +21,8 @@ export default function StudentShell({ children }: Readonly<{ children: React.Re
   const router = useRouter();
   const { sidebarOpen, setSidebarOpen, setActiveTab, theme, toggleTheme } = useUIStore();
 
-  function logout() {
-    document.cookie = "sew_session=; Max-Age=0; path=/";
-    document.cookie = "sew_role=; Max-Age=0; path=/";
-    document.cookie = "sew_email=; Max-Age=0; path=/";
-    // Tanpa baris ini, NIM sesi lama tetap tersimpan dan terbaca akun berikutnya.
-    document.cookie = "sew_nim=; Max-Age=0; path=/";
+  async function logout() {
+    await clearSession();
     router.push("/login");
   }
 

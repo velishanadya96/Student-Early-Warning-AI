@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, GraduationCap, LayoutDashboard, LogOut, Menu, ShieldAlert, Users, ClipboardCheck, Moon, Sun } from "lucide-react";
+import { Bell, GraduationCap, LayoutDashboard, LogOut, Menu, ShieldAlert, Users, ClipboardCheck, Moon, Sun, MessageCircle } from "lucide-react";
 import { useUIStore } from "@/store/useUIStore";
+import { clearSession } from "@/lib/authApi";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, key: "dashboard" },
   { href: "/dashboard/mahasiswa", label: "Mahasiswa", icon: Users, key: "mahasiswa" },
   { href: "/dashboard/risiko", label: "Risk Score", icon: ShieldAlert, key: "risiko" },
   { href: "/dashboard/intervensi", label: "Tindak Lanjut", icon: ClipboardCheck, key: "intervensi" },
+  { href: "/dashboard/kontak", label: "Kontak Orang Tua", icon: MessageCircle, key: "kontak" },
 ];
 
 export default function DashboardShell({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -17,9 +19,8 @@ export default function DashboardShell({ children }: Readonly<{ children: React.
   const router = useRouter();
   const { sidebarOpen, setSidebarOpen, setActiveTab, theme, toggleTheme } = useUIStore();
 
-  function logout() {
-    document.cookie = "sew_session=; Max-Age=0; path=/";
-    document.cookie = "sew_email=; Max-Age=0; path=/";
+  async function logout() {
+    await clearSession();
     router.push("/login");
   }
 

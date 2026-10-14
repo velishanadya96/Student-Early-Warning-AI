@@ -35,8 +35,11 @@
     "**/*.ts",
     "**/*.tsx"
   ],
-  "exclude": [
+    "exclude": [
     "node_modules",
-    "modul-8-vite"
+    "modul-8-vite",
+    "Student-Early-Warning-AI",
+    "backend",
+    "venv"
   ]
 }

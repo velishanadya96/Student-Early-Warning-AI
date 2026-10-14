@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, GraduationCap, LayoutDashboard, LogOut, Menu, Moon, Sun, Users, Database, FileBarChart, ShieldAlert } from "lucide-react";
+import { Bell, GraduationCap, LayoutDashboard, LogOut, Menu, Moon, Sun, Users, Database, FileBarChart, ShieldAlert, MessageCircle } from "lucide-react";
 import { useUIStore } from "@/store/useUIStore";
+import { clearSession } from "@/lib/authApi";
 
 type Role = "admin" | "kaprodi" | "orangtua";
 
@@ -35,6 +36,7 @@ const config: Record<Role, { label: string; description: string; home: string; n
     nav: [
       { href: "/dashboard-orangtua", label: "Dashboard Anak", icon: LayoutDashboard },
       { href: "/dashboard-orangtua/risiko", label: "Status Risiko", icon: ShieldAlert },
+      { href: "/dashboard-orangtua/kontak", label: "Kontak Dosen PA", icon: MessageCircle },
     ],
   },
 };
@@ -45,11 +47,8 @@ export default function RoleShell({ role, children }: Readonly<{ role: Role; chi
   const { sidebarOpen, setSidebarOpen, setActiveTab, theme, toggleTheme } = useUIStore();
   const current = config[role];
 
-  function logout() {
-    document.cookie = "sew_session=; Max-Age=0; path=/";
-    document.cookie = "sew_role=; Max-Age=0; path=/";
-    document.cookie = "sew_email=; Max-Age=0; path=/";
-    document.cookie = "sew_nim=; Max-Age=0; path=/";
+  async function logout() {
+    await clearSession();
     router.push("/login");
   }
 
