@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, UserPlus, UserRoundX } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import RosterImport from "@/components/admin/RosterImport";
 import { assignDosenApi, createUserApi, listUsersApi, setActiveApi, type NewUser } from "@/lib/adminApi";
 
 const ROLE_LABEL: Record<string, string> = { admin: "Admin", kaprodi: "Kaprodi", dosen: "Dosen PA", mahasiswa: "Mahasiswa", orangtua: "Orang Tua" };
@@ -74,7 +75,7 @@ export default function AdminUsers() {
               </select>
             </label>
             <label className="text-sm font-semibold text-slate-700">Nama lengkap<input className={`${field} mt-1`} value={form.name} onChange={set("name")} required /></label>
-            <label className="text-sm font-semibold text-slate-700">Email{form.role !== "orangtua" && " (@student.uns.ac.id)"}<input className={`${field} mt-1`} type="email" value={form.email} onChange={set("email")} required /></label>
+            <label className="text-sm font-semibold text-slate-700">Email (akun Google)<input className={`${field} mt-1`} type="email" value={form.email} onChange={set("email")} required /></label>
             <label className="text-sm font-semibold text-slate-700">Password (min. 8)<input className={`${field} mt-1`} type="password" value={form.password} onChange={set("password")} minLength={8} required /></label>
             {(form.role === "mahasiswa" || form.role === "orangtua") && (
               <label className="text-sm font-semibold text-slate-700">{form.role === "orangtua" ? "NIM mahasiswa yang dipantau" : "NIM"}<input className={`${field} mt-1`} value={form.nim} onChange={set("nim")} required /></label>
@@ -87,6 +88,8 @@ export default function AdminUsers() {
           </form>
         </Card>
       )}
+
+      <div className="mb-6"><RosterImport /></div>
 
       <Card>
         <div className="overflow-x-auto">

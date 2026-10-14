@@ -15,7 +15,7 @@ export default function LoginPage() {
             </h1>
 
             <p className="mt-2 text-sm text-slate-500">
-              Gunakan akun sesuai dengan role kamu.
+              Masuk dengan email dan password, atau dengan akun Google yang sudah terdaftar.
             </p>
           </div>
 

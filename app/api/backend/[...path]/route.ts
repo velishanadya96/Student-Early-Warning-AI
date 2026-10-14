@@ -7,7 +7,10 @@ export const dynamic = "force-dynamic";
 
 // Endpoint yang boleh dipanggil tanpa login (tidak butuh token). Lewat proxy ini browser tidak pernah
 // memanggil Flask langsung, jadi tidak ada masalah CORS.
-const PUBLIC = new Set(["auth/register", "auth/register-ortu", "auth/verify-email", "auth/resend-verification"]);
+const PUBLIC = new Set([
+  "POST auth/register", "POST auth/register-ortu", "POST auth/verify-email", "POST auth/resend-verification",
+  "POST auth/google/preview", "GET auth/config",
+]);
 
 async function call(url: string, method: string, body: string | undefined, token: string | null) {
   return fetch(url, {
@@ -24,9 +27,9 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ path: string[]
   const body = ["GET", "HEAD"].includes(req.method) ? undefined : await req.text();
   const access = req.cookies.get(ACCESS_COOKIE)?.value;
   const refresh = req.cookies.get(REFRESH_COOKIE)?.value;
-  if (PUBLIC.has(path.join("/")) && req.method === "POST") {
+  if (PUBLIC.has(`${req.method} ${path.join("/")}`)) {
     try {
-      const up = await call(url, "POST", body, null);
+      const up = await call(url, req.method, body, null);
       return new NextResponse(await up.text(), { status: up.status, headers: { "Content-Type": up.headers.get("Content-Type") ?? "application/json" } });
     } catch {
       return NextResponse.json({ code: "BACKEND_MATI", message: "Tidak bisa terhubung ke server backend. Pastikan Flask sudah jalan." }, { status: 502 });

@@ -15,7 +15,7 @@ export default function RegisterPage() {
             </h1>
 
             <p className="mt-2 text-sm text-slate-500">
-              Daftarkan akun menggunakan email SSO UNS.
+              Daftar dengan akun Google dan NIM kamu.
             </p>
           </div>
 

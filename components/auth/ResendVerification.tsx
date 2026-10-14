@@ -5,7 +5,7 @@ import { MailCheck } from "lucide-react";
 import { resendVerificationApi } from "@/lib/authApi";
 
 /** Kotak peringatan "email belum diverifikasi" + tombol kirim ulang tautan. */
-export default function ResendVerification({ email, nim, className = "" }: { email: string; nim?: string; className?: string }) {
+export default function ResendVerification({ email, nim, className = "", compact = false }: { email: string; nim?: string; className?: string; compact?: boolean }) {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [cooldown, setCooldown] = useState(false);
 
@@ -19,6 +19,18 @@ export default function ResendVerification({ email, nim, className = "" }: { ema
     } catch {
       setState("error");
     }
+  }
+
+  if (compact) {
+    return (
+      <p className={`text-sm ${className}`}>
+        Belum menerima email?{" "}
+        <button type="button" onClick={resend} disabled={state === "sending" || cooldown} className="font-bold text-blue-700 underline disabled:opacity-50 disabled:no-underline">
+          {state === "sending" ? "Mengirim..." : cooldown ? "Tautan baru sudah dikirim" : "Kirim ulang tautan"}
+        </button>
+        {state === "error" && <span className="ml-2 text-red-700">Gagal mengirim. Coba lagi.</span>}
+      </p>
+    );
   }
 
   return (

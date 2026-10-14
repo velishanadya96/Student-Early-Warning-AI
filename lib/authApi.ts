@@ -54,9 +54,32 @@ export const loginApi = (username: string, password: string) =>
 export const loginOrtuApi = (nim: string, email: string, password: string) =>
   post<LoginResult>("/api/auth/login-ortu", { nim, email, password });
 
-// POST /auth/register - daftar mandiri mahasiswa (email verifikasi dikirim bila diwajibkan)
-export const registerApi = (payload: { name: string; email: string; password: string; nim: string }) =>
-  post<RegisterResult>("/api/backend/auth/register", payload);
+// POST /auth/register - daftar mandiri mahasiswa.
+// Mode Google: kirim `credential` (ID token Google) + nim + password (email diambil server dari Google).
+// Mode lama (Google nonaktif): kirim name + email + password + nim, lalu verifikasi lewat tautan email.
+export const registerApi = (payload: {
+  name?: string; email?: string; password: string; nim: string; credential?: string;
+}) => post<RegisterResult>("/api/backend/auth/register", payload);
+
+export type AuthConfig = {
+  google_enabled: boolean;
+  google_client_id: string | null;
+  register_requires_google: boolean;
+  allowed_email_domains: string[];
+  roster_active: boolean;
+};
+// GET /auth/config - apakah login/daftar Google aktif (dan Client ID-nya)
+export const authConfigApi = () => request<AuthConfig>("/api/backend/auth/config", { headers: { Accept: "application/json" } });
+
+export type GooglePreview = {
+  email: string; name: string; already_registered: boolean;
+  nim: string | null; nama_resmi: string | null; domain_error: string | null;
+};
+// POST /auth/google/preview - langkah 1 daftar: verifikasi akun Google di server
+export const googlePreviewApi = (credential: string) => post<GooglePreview>("/api/backend/auth/google/preview", { credential });
+
+// POST /auth/google - masuk dengan Google (akun harus sudah terdaftar)
+export const loginGoogleApi = (credential: string) => post<LoginResult>("/api/auth/google", { credential });
 
 // POST /auth/register-ortu - daftar mandiri orang tua (diverifikasi NIM + email anak), lengkap dengan no WhatsApp
 export const registerOrtuApi = (payload: {

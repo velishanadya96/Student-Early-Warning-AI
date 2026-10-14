@@ -28,3 +28,8 @@ export const createUserApi = (u: NewUser) => call<AdminUser>("POST", "/users", u
 export const setActiveApi = (id: number, is_active: boolean) => call<AdminUser>("PUT", `/users/${id}`, { is_active });
 export const assignDosenApi = (nim: string, id_dosen_pa: number) =>
   call<{ nim: string; id_dosen_pa: number }>("PATCH", `/users/mahasiswa/${encodeURIComponent(nim)}/dosen-pa`, { id_dosen_pa });
+
+export type RosterRow = { nim: string; nama: string; prodi?: string; angkatan?: number; email?: string };
+export const importRosterApi = (rows: RosterRow[]) =>
+  call<{ added: number; updated: number; total: number }>("POST", "/users/roster", { rows });
+export const rosterCountApi = () => call<{ total: number }>("GET", "/users/roster/count");
