@@ -1,19 +1,40 @@
-# Sesuai Bagian 10 dokumen arsitektur (versi awal: api + db; nginx & worker menyusul)
+# Jalankan:  docker compose up --build
+# Backend jalan di http://localhost:5000 (cek: http://localhost:5000/api/v1/health)
+# Tabel dibuat otomatis lewat migrasi dan 9 akun demo diisi otomatis (password 123456).
+# Nilai di bawah sudah cukup untuk demo lokal. Untuk server sungguhan, isi lewat file .env (lihat .env.example).
 services:
-  api:
-    build: .
-    env_file: .env
-    environment:
-      DATABASE_URL: mysql+pymysql://root:root@db:3306/student_early_warning
-    ports: ["5000:5000"]
-    depends_on: [db]
-    restart: unless-stopped
   db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: student_early_warning
-    volumes: [dbdata:/var/lib/mysql]
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
     restart: unless-stopped
+
+  api:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: mysql+pymysql://root:${MYSQL_ROOT_PASSWORD:-root}@db:3306/student_early_warning
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-only-ganti-di-produksi-minimal-32-karakter}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      SEED_ON_START: ${SEED_ON_START:-true}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      EMAIL_VERIFICATION_REQUIRED: ${EMAIL_VERIFICATION_REQUIRED:-true}
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   dbdata:

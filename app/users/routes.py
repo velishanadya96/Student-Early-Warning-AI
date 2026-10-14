@@ -32,7 +32,7 @@ def create_user():
     d = parse(UserCreateIn, request.get_json(silent=True))
     user = create_user_with_profile(
         role=d.role, name=d.name, email=d.email, password=d.password, username=d.username,
-        nim=d.nim, nidn=d.nidn, prodi=d.prodi, angkatan=d.angkatan,
+        nim=d.nim, nidn=d.nidn, prodi=d.prodi, angkatan=d.angkatan, no_wa=d.no_wa,
     )
     log.info("admin membuat akun id_user=%s role=%s", user.id_user, user.role)
     return jsonify(user.to_dict()), 201
@@ -53,6 +53,10 @@ def update_user(id_user):
         profile = user.mahasiswa or user.dosen_pa or user.orang_tua
         if profile:
             profile.nama = d.name.strip()
+    if d.no_wa:
+        if user.role not in ("dosen", "orangtua"):
+            raise ApiError("VALIDASI_GAGAL", "Nomor WhatsApp hanya untuk akun Dosen PA dan orang tua.", 422)
+        (user.dosen_pa or user.orang_tua).no_wa = d.no_wa
     if d.password:
         user.password_hash = hash_password(d.password)
     if d.is_active is not None:

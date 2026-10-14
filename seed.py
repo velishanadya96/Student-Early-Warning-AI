@@ -26,7 +26,7 @@ with app.app_context():
 
     u, new = add_user("dosen", "dosen@student.uns.ac.id", "dosen")
     if new:
-        db.session.add(DosenPA(id_user=u.id_user, nidn="0012345601", nama="Dosen PA", prodi=PRODI))
+        db.session.add(DosenPA(id_user=u.id_user, nidn="0012345601", nama="Dosen PA", prodi=PRODI, no_wa="6281234567801"))
         db.session.flush()
     dosen = DosenPA.query.filter_by(nidn="0012345601").first()
 
@@ -46,6 +46,6 @@ with app.app_context():
     # Orang tua (email non-SSO) memantau Alya Putri (2024001)
     u, new = add_user("orangtua", "orangtua@example.com", "orangtua")
     if new:
-        db.session.add(OrangTua(id_user=u.id_user, nim="2024001", nama="Orang Tua Mahasiswa"))
+        db.session.add(OrangTua(id_user=u.id_user, nim="2024001", nama="Orang Tua Mahasiswa", no_wa="6281234567802"))
     db.session.commit()
     print(f"Seed selesai. Total akun: {User.query.count()} (password demo: {PASSWORD})")

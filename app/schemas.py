@@ -38,6 +38,20 @@ def _email_any(v: str) -> str:
     return v
 
 
+def _wa(v):
+    """Normalisasi nomor WhatsApp ke format 62xxxxxxxxxx (spasi, strip, +, 08.. dibersihkan)."""
+    if v is None or not str(v).strip():
+        return None
+    digits = re.sub(r"[\s\-().+]", "", str(v))
+    if not digits.isdigit():
+        raise ValueError("Nomor WhatsApp hanya boleh berisi angka.")
+    if digits.startswith("0"):
+        digits = "62" + digits[1:]
+    if not digits.startswith("62") or not 10 <= len(digits) <= 15:
+        raise ValueError("Nomor WhatsApp tidak valid. Contoh: 081234567890.")
+    return digits
+
+
 class LoginIn(BaseModel):
     username: str  # boleh username ATAU email (FR-01)
     password: str
@@ -63,6 +77,79 @@ class LoginIn(BaseModel):
         if len(v) < 6:
             raise ValueError("Password minimal 6 karakter.")
         return v
+
+
+class LoginOrtuIn(BaseModel):
+    """Login Orang Tua (FR-01): NIM anak + email anak + password orang tua."""
+    nim: str
+    email: str
+    password: str
+
+    @field_validator("nim")
+    @classmethod
+    def _nim(cls, v):
+        v = v.strip()
+        if not v:
+            raise ValueError("NIM mahasiswa wajib diisi.")
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def _e(cls, v):
+        return _email_any(v)
+
+    @field_validator("password")
+    @classmethod
+    def _p(cls, v):
+        if len(v) < 6:
+            raise ValueError("Password minimal 6 karakter.")
+        return v
+
+
+class RegisterOrtuIn(BaseModel):
+    """Pendaftaran mandiri Orang Tua: diverifikasi dengan NIM + email anak."""
+    name: str
+    email: str          # email milik orang tua sendiri
+    password: str
+    nim: str            # NIM anak
+    email_mahasiswa: str
+    no_wa: str
+
+    @field_validator("name")
+    @classmethod
+    def _n(cls, v):
+        v = v.strip()
+        if len(v) < 3:
+            raise ValueError("Nama lengkap minimal 3 karakter.")
+        return v
+
+    @field_validator("email", "email_mahasiswa")
+    @classmethod
+    def _e(cls, v):
+        return _email_any(v)
+
+    @field_validator("password")
+    @classmethod
+    def _p(cls, v):
+        if len(v) < 8:
+            raise ValueError("Password minimal 8 karakter.")
+        return v
+
+    @field_validator("nim")
+    @classmethod
+    def _nim(cls, v):
+        v = v.strip()
+        if not v:
+            raise ValueError("NIM mahasiswa wajib diisi.")
+        return v
+
+    @field_validator("no_wa")
+    @classmethod
+    def _w(cls, v):
+        w = _wa(v)
+        if not w:
+            raise ValueError("Nomor WhatsApp wajib diisi.")
+        return w
 
 
 class RegisterIn(BaseModel):
@@ -116,6 +203,12 @@ class UserCreateIn(RegisterIn):
     role: Role
     nim: Optional[str] = None   # mahasiswa: NIM sendiri; orangtua: NIM anak yang dipantau
     nidn: Optional[str] = None
+    no_wa: Optional[str] = None  # wajib untuk dosen & orangtua
+
+    @field_validator("no_wa")
+    @classmethod
+    def _w(cls, v):
+        return _wa(v)
 
     @field_validator("email")
     @classmethod
@@ -142,6 +235,8 @@ class UserCreateIn(RegisterIn):
             raise ValueError("NIM mahasiswa yang dipantau wajib diisi untuk akun orang tua.")
         if self.role == "dosen" and not (self.nidn or "").strip():
             raise ValueError("NIDN wajib diisi untuk akun Dosen PA.")
+        if self.role in ("dosen", "orangtua") and not self.no_wa:
+            raise ValueError("Nomor WhatsApp wajib diisi untuk akun Dosen PA dan orang tua.")
         return self
 
 
@@ -150,6 +245,12 @@ class UserUpdateIn(BaseModel):
     email: Optional[str] = None
     password: Optional[str] = None
     is_active: Optional[bool] = None
+    no_wa: Optional[str] = None
+
+    @field_validator("no_wa")
+    @classmethod
+    def _w(cls, v):
+        return _wa(v)
 
     @field_validator("email")
     @classmethod
@@ -166,3 +267,26 @@ class UserUpdateIn(BaseModel):
 
 class AssignDosenIn(BaseModel):
     id_dosen_pa: int
+
+
+class VerifyEmailIn(BaseModel):
+    token: str
+
+    @field_validator("token")
+    @classmethod
+    def _t(cls, v):
+        v = (v or "").strip()
+        if not v or len(v) > 200:
+            raise ValueError("Token tidak valid.")
+        return v
+
+
+class ResendIn(BaseModel):
+    """Kirim ulang: pakai email akun, atau (khusus orang tua) NIM anak + email anak."""
+    email: str
+    nim: Optional[str] = None
+
+    @field_validator("email")
+    @classmethod
+    def _e(cls, v):
+        return (v or "").strip().lower()

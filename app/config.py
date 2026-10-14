@@ -14,8 +14,22 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)   # NFR-01
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)      # NFR-01
 
-    CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")]
+    CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")]
     ALLOW_SELF_REGISTER = os.getenv("ALLOW_SELF_REGISTER", "true").lower() == "true"
     RATELIMIT_ENABLED = True
     RATELIMIT_STORAGE_URI = "memory://"
-    LOGIN_RATE_LIMIT = "10 per minute"
+    LOGIN_RATE_LIMIT = os.getenv("LOGIN_RATE_LIMIT", "30 per minute")  # login lewat Next: semua pengguna terlihat dari 1 IP
+
+    # Verifikasi email. Kalau SMTP_HOST kosong, tautan verifikasi dicetak di terminal Flask (mode dev).
+    EMAIL_VERIFICATION_REQUIRED = os.getenv("EMAIL_VERIFICATION_REQUIRED", "true").lower() == "true"
+    VERIFY_TOKEN_HOURS = int(os.getenv("VERIFY_TOKEN_HOURS", "24"))
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+    SMTP_HOST = os.getenv("SMTP_HOST", "")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+    MAIL_FROM = os.getenv("MAIL_FROM", "Student Early Warning AI <no-reply@sew.local>")
+
+    # Penguncian akun setelah login salah berulang (per akun, di luar rate limit per IP).
+    MAX_FAILED_LOGINS = int(os.getenv("MAX_FAILED_LOGINS", "5"))
+    LOCKOUT_MINUTES = int(os.getenv("LOCKOUT_MINUTES", "15"))

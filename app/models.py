@@ -18,6 +18,13 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)  # bcrypt
     role = db.Column(db.String(20), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)  # DELETE /users = nonaktifkan
+    # Verifikasi email & penguncian akun. Akun buatan Admin/seed dianggap sudah terverifikasi (default True);
+    # pendaftaran mandiri memakai False sampai tautan di email diklik.
+    email_verified = db.Column(db.Boolean, nullable=False, default=True)
+    verify_token_hash = db.Column(db.String(64), index=True)   # SHA-256 dari token; token asli tidak disimpan
+    verify_expires_at = db.Column(db.DateTime)
+    failed_logins = db.Column(db.Integer, nullable=False, default=0)
+    locked_until = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, nullable=False, default=_now)
 
     dosen_pa = db.relationship("DosenPA", back_populates="user", uselist=False)
@@ -46,7 +53,11 @@ class User(db.Model):
             "email": self.email,
             "role": self.role,
             "nim": self.nim,
+            "no_wa": (self.dosen_pa or self.orang_tua).no_wa if (self.dosen_pa or self.orang_tua) else None,
             "is_active": self.is_active,
+            "email_verified": self.email_verified,
+            # dosen: id profil Dosen PA-nya sendiri; mahasiswa: id Dosen PA pembimbingnya (null = belum ditugaskan)
+            "id_dosen_pa": self.dosen_pa.id_dosen_pa if self.dosen_pa else (self.mahasiswa.id_dosen_pa if self.mahasiswa else None),
         }
 
 
@@ -57,6 +68,7 @@ class DosenPA(db.Model):
     nidn = db.Column(db.String(20), nullable=False, unique=True)
     nama = db.Column(db.String(100), nullable=False)
     prodi = db.Column(db.String(100))
+    no_wa = db.Column(db.String(20))  # format 62812xxxxxxx; ditampilkan ke orang tua mahasiswa bimbingan
 
     user = db.relationship("User", back_populates="dosen_pa")
     bimbingan = db.relationship("Mahasiswa", back_populates="dosen_pa")
@@ -84,6 +96,7 @@ class OrangTua(db.Model):
     id_user = db.Column(db.Integer, db.ForeignKey("user.id_user"), nullable=False, unique=True)
     nim = db.Column(db.String(20), db.ForeignKey("mahasiswa.nim"), nullable=False, index=True)
     nama = db.Column(db.String(100), nullable=False)
+    no_wa = db.Column(db.String(20))  # tujuan notifikasi WhatsApp (FR-11); ditampilkan ke Dosen PA
 
     user = db.relationship("User", back_populates="orang_tua")
     mahasiswa = db.relationship("Mahasiswa")
@@ -145,5 +158,5 @@ class Notifikasi(db.Model):
     id_score = db.Column(db.Integer, db.ForeignKey("risk_score.id_score"), nullable=False)
     isi_pesan = db.Column(db.Text, nullable=False)
     status_kirim = db.Column(db.String(20), nullable=False, default="pending")
-    kanal = db.Column(db.String(20), nullable=False)  # sistem / email
+    kanal = db.Column(db.String(20), nullable=False)  # sistem / wa
     dibaca = db.Column(db.Boolean, nullable=False, default=False)  # untuk PATCH /notifikasi/{id}/baca

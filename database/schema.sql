@@ -12,9 +12,15 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`role` VARCHAR(20) NOT NULL, 
 	is_active BOOL NOT NULL, 
 	created_at DATETIME NOT NULL, 
+	email_verified BOOL NOT NULL DEFAULT 1, 
+	verify_token_hash VARCHAR(64), 
+	verify_expires_at DATETIME, 
+	failed_logins INTEGER NOT NULL DEFAULT 0, 
+	locked_until DATETIME, 
 	PRIMARY KEY (id_user), 
 	UNIQUE (username), 
-	UNIQUE (email)
+	UNIQUE (email), 
+	INDEX ix_user_verify_token_hash (verify_token_hash)
 ) ENGINE=InnoDB;
 
 
@@ -24,6 +30,7 @@ CREATE TABLE IF NOT EXISTS dosen_pa (
 	nidn VARCHAR(20) NOT NULL, 
 	nama VARCHAR(100) NOT NULL, 
 	prodi VARCHAR(100), 
+	no_wa VARCHAR(20), 
 	PRIMARY KEY (id_dosen_pa), 
 	UNIQUE (id_user), 
 	FOREIGN KEY(id_user) REFERENCES `user` (id_user), 
@@ -64,6 +71,7 @@ CREATE TABLE IF NOT EXISTS orang_tua (
 	id_user INTEGER NOT NULL, 
 	nim VARCHAR(20) NOT NULL, 
 	nama VARCHAR(100) NOT NULL, 
+	no_wa VARCHAR(20), 
 	PRIMARY KEY (id_orang_tua), 
 	UNIQUE (id_user), 
 	FOREIGN KEY(id_user) REFERENCES `user` (id_user), 

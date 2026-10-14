@@ -25,9 +25,11 @@ def create_app(config_overrides=None):
     from . import models  # noqa: F401  (daftarkan semua tabel)
     from .auth import auth_bp
     from .users import users_bp
+    from .kontak import kontak_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
     app.register_blueprint(users_bp, url_prefix="/api/v1/users")
+    app.register_blueprint(kontak_bp, url_prefix="/api/v1/kontak")
 
     @app.get("/api/v1/health")
     def health():
