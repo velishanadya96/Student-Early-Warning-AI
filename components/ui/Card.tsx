@@ -1,12 +1,12 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
 
-const cardVariants = cva("card p-5", {
+const cardVariants = cva("card p-5 sm:p-6", {
   variants: {
     tone: {
       default: "",
-      blue: "border-blue-100 bg-blue-50/40",
-      red: "border-red-100 bg-red-50/40",
+      blue: "",
+      red: "!border-red-200/70",
     },
   },
   defaultVariants: { tone: "default" },

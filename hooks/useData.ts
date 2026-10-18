@@ -3,14 +3,16 @@ import {
   adminDashboardApi, catatanApi, dosenDashboardApi, hitungRisikoApi, kaprodiDashboardApi, kirimUlangApi, mahasiswaDashboardApi,
   notifSistemApi, ortuDashboardApi, prosesAntreanApi, tambahCatatanApi, tandaiBacaApi, tandaiTerkirimApi, waOrtuApi,
 } from "@/lib/dataApi";
+import { meApi } from "@/lib/authApi";
 
 const stale = { staleTime: 15_000, gcTime: 5 * 60_000, retry: false } as const;
 
 export const useDosenDashboard = (periode?: string | null) => useQuery({ queryKey: ["dosen-dashboard", periode ?? null], queryFn: () => dosenDashboardApi(periode), ...stale });
 export const useKaprodiDashboard = (periode?: string | null) => useQuery({ queryKey: ["kaprodi-dashboard", periode ?? null], queryFn: () => kaprodiDashboardApi(periode), ...stale });
 export const useAdminDashboard = () => useQuery({ queryKey: ["admin-dashboard"], queryFn: adminDashboardApi, ...stale });
-export const useMahasiswaDashboard = () => useQuery({ queryKey: ["mahasiswa-dashboard"], queryFn: mahasiswaDashboardApi, ...stale });
-export const useOrtuDashboard = () => useQuery({ queryKey: ["ortu-dashboard"], queryFn: ortuDashboardApi, ...stale });
+export const useMahasiswaDashboard = (enabled = true) => useQuery({ queryKey: ["mahasiswa-dashboard"], queryFn: mahasiswaDashboardApi, enabled, ...stale });
+export const useOrtuDashboard = (enabled = true) => useQuery({ queryKey: ["ortu-dashboard"], queryFn: ortuDashboardApi, enabled, ...stale });
+export const useMe = () => useQuery({ queryKey: ["me"], queryFn: meApi, ...stale });
 export const useNotifSistem = () => useQuery({ queryKey: ["notif-sistem"], queryFn: notifSistemApi, ...stale });
 export const useWaOrtu = () => useQuery({ queryKey: ["wa-ortu"], queryFn: waOrtuApi, ...stale });
 export const useCatatan = (nim: string) => useQuery({ queryKey: ["catatan", nim], queryFn: () => catatanApi(nim), enabled: Boolean(nim), ...stale });

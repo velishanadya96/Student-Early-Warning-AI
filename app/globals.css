@@ -1,52 +1,354 @@
 @import "tailwindcss";
 
+/* =====================================================================================
+   Desain: "Deep Navy" (terang) + "Obsidian" (gelap)  ·  font Plus Jakarta Sans
+   Semua warna lewat variabel CSS. Palet bawaan Tailwind (slate/blue/red/emerald/amber/white)
+   dipetakan ulang ke palet ini, jadi kelas lama seperti bg-white / text-slate-500 / bg-blue-600
+   otomatis ikut berganti saat mode terang <-> gelap tanpa mengubah tiap komponen.
+   Mode gelap aktif lewat class "dark" di <html> (diatur ThemeProvider).
+   ===================================================================================== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+  /* ---- TERANG: Deep Navy ---- */
+  --color-white: #ffffff;
+  --color-slate-50: #f1f8fe;
+  --color-slate-100: #e3f0fb;
+  --color-slate-200: #cfe3f3;
+  --color-slate-300: #b3cde6;
+  --color-slate-400: #5f86b3;
+  --color-slate-500: #3e6291;
+  --color-slate-600: #2d4f7e;
+  --color-slate-700: #1b3a66;
+  --color-slate-800: #0e2a55;
+  --color-slate-900: #052659;
+  --color-slate-950: #021024;
+
+  --color-blue-50: #eaf3fc;
+  --color-blue-100: #d8e8f8;
+  --color-blue-200: #b9d3ee;
+  --color-blue-300: #8fb4dc;
+  --color-blue-400: #5483b3;
+  --color-blue-500: #3e6fa3;
+  --color-blue-600: #0b3a85;
+  --color-blue-700: #052659;
+  --color-blue-800: #031a40;
+
+  --color-red-50: #fbeeea;
+  --color-red-100: #f6ddd7;
+  --color-red-200: #edbfb4;
+  --color-red-500: #d2563c;
+  --color-red-600: #b0412c;
+  --color-red-700: #9a3523;
+  --color-red-800: #7f2b1c;
+
+  --color-emerald-50: #e6f4ee;
+  --color-emerald-100: #d6ebe3;
+  --color-emerald-200: #b4dacb;
+  --color-emerald-500: #3f9c7b;
+  --color-emerald-600: #2c6a54;
+  --color-emerald-700: #25594a;
+  --color-emerald-800: #1d4739;
+
+  --color-amber-50: #f8f0da;
+  --color-amber-100: #f4e8c8;
+  --color-amber-200: #e8d49c;
+  --color-amber-500: #c9952b;
+  --color-amber-600: #a9761a;
+  --color-amber-700: #8a5f10;
+  --color-amber-800: #6f4b0b;
+  --color-amber-900: #5a3d08;
+}
+
 :root {
-  --background: #f7f9fc;
-  --foreground: #172033;
-  --primary: #2563eb;
+  color-scheme: light;
+  --bg: #e3f1fd;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-solid: #ffffff;
+  --text: #021024;
+  --text-2: #052659;
+  --muted: #3e6291;
+  --line: rgba(5, 38, 89, 0.14);
+  --accent: #0b3a85;
+  --shadow-card: 0 18px 40px -28px rgba(5, 38, 89, 0.45);
+  --ring-track: #cfe3f3;
+
+  /* tile hero */
+  --hero-bg: linear-gradient(150deg, #0b3a85 0%, #052659 55%, #021024 100%);
+  --hero-border: rgba(193, 232, 255, 0.28);
+  --hero-fg: #ffffff;
+  --hero-accent: #8fb8e3;
+  --hero-muted: #9db9d8;
+  --hero-btn-bg: #c1e8ff;
+  --hero-btn-fg: #021024;
+  --hero-shadow: 0 30px 60px -32px rgba(2, 16, 36, 0.75);
+  --radar-1: #ffffff;
+  --radar-2: #c1e8ff;
+  --radar-3: #7da0ca;
+  --radar-line: rgba(5, 38, 89, 0.35);
+  --radar-sweep: rgba(84, 131, 179, 0.45);
+  --radar-hub-bg: #052659;
+  --radar-hub-fg: #c1e8ff;
+  --radar-ok: #052659;
+
+  /* navigasi (rail / tab bar) */
+  --rail-bg: #021024;
+  --rail-fg: #7da0ca;
+  --rail-on-bg: #c1e8ff;
+  --rail-on-fg: #021024;
+  --rail-border: rgba(125, 160, 202, 0.2);
+
+  --risk-high: #b0412c;
+  --risk-med: #a9761a;
+  --risk-low: #2c6a54;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  /* ---- GELAP: Obsidian ---- */
+  --color-white: #0d1523;
+  --color-slate-50: #131e30;
+  --color-slate-100: #1a2740;
+  --color-slate-200: #25354f;
+  --color-slate-300: #34476a;
+  --color-slate-400: #7e96b3;
+  --color-slate-500: #8ca3bd;
+  --color-slate-600: #a9bdd3;
+  --color-slate-700: #c9d8e8;
+  --color-slate-800: #e0eaf5;
+  --color-slate-900: #eef4fb;
+  --color-slate-950: #f6faff;
+
+  --color-blue-50: #12233e;
+  --color-blue-100: #17304f;
+  --color-blue-200: #24406a;
+  --color-blue-300: #7db8f0;
+  --color-blue-400: #8cc4f5;
+  --color-blue-500: #7db8f0;
+  --color-blue-600: #c1e8ff;
+  --color-blue-700: #e4f3ff;
+  --color-blue-800: #eaf6ff;
+
+  --color-red-50: #2a1518;
+  --color-red-100: #3a1b1d;
+  --color-red-200: #5a2a2a;
+  --color-red-500: #ff7a5c;
+  --color-red-600: #ff8f74;
+  --color-red-700: #ffa591;
+  --color-red-800: #ffb9a9;
+
+  --color-emerald-50: #0f2a25;
+  --color-emerald-100: #123329;
+  --color-emerald-200: #1e4a3c;
+  --color-emerald-500: #4fbf9a;
+  --color-emerald-600: #86d6b6;
+  --color-emerald-700: #9be0c4;
+  --color-emerald-800: #b3ead3;
+
+  --color-amber-50: #2a2210;
+  --color-amber-100: #33290f;
+  --color-amber-200: #4d3c14;
+  --color-amber-500: #e9b949;
+  --color-amber-600: #f0c36a;
+  --color-amber-700: #f3cf85;
+  --color-amber-800: #f6db9f;
+  --color-amber-900: #f8e4b3;
+
+  --bg: #04070d;
+  --surface: #0d1523;
+  --surface-solid: #0d1523;
+  --text: #eef4fb;
+  --text-2: #c1e8ff;
+  --muted: #8ca3bd;
+  --line: rgba(193, 232, 255, 0.1);
+  --accent: #c1e8ff;
+  --shadow-card: 0 20px 40px -26px rgba(0, 0, 0, 0.9);
+  --ring-track: #1b2a42;
+
+  /* hero terang di atas latar gelap = titik fokus utama */
+  --hero-bg: linear-gradient(150deg, #f4fbff 0%, #c1e8ff 46%, #8fb8e3 100%);
+  --hero-border: rgba(255, 255, 255, 0.7);
+  --hero-fg: #021024;
+  --hero-accent: #2c5e9e;
+  --hero-muted: #3e6291;
+  --hero-btn-bg: #021024;
+  --hero-btn-fg: #c1e8ff;
+  --hero-shadow: 0 34px 80px -34px rgba(193, 232, 255, 0.5);
+  --radar-1: #24406a;
+  --radar-2: #12233e;
+  --radar-3: #070f1c;
+  --radar-line: rgba(193, 232, 255, 0.22);
+  --radar-sweep: rgba(193, 232, 255, 0.3);
+  --radar-hub-bg: #c1e8ff;
+  --radar-hub-fg: #04101f;
+  --radar-ok: #8ca3bd;
+
+  --rail-bg: #0d1523;
+  --rail-fg: #8ca3bd;
+  --rail-on-bg: #c1e8ff;
+  --rail-on-fg: #04101f;
+  --rail-border: rgba(193, 232, 255, 0.14);
+
+  --risk-high: #ff9d86;
+  --risk-med: #f0c36a;
+  --risk-low: #86d6b6;
 }
 
 * { box-sizing: border-box; }
+
+/* Tailwind v4: border tanpa warna memakai currentColor. Samakan dengan perilaku lama (garis tipis netral). */
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button { border-color: var(--color-slate-200); }
+}
 
 html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+
+/* latar bergradasi halus supaya halaman tidak datar */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 560px at 85% -10%, rgba(84, 131, 179, 0.22) 0, transparent 62%),
+    radial-gradient(700px 520px at 0% 100%, rgba(193, 232, 255, 0.5) 0, transparent 65%);
+}
+html.dark body::before {
+  background: radial-gradient(900px 560px at 85% -10%, rgba(84, 131, 179, 0.16) 0, transparent 62%);
 }
 
 button, input, select, textarea { font: inherit; }
-
 button { cursor: pointer; }
+input, select, textarea { color: var(--text); background: var(--surface-solid); }
+input::placeholder, textarea::placeholder { color: var(--color-slate-400); }
 
-::selection {
-  background: #bfdbfe;
-  color: #172033;
-}
+::selection { background: #b9d3ee; color: #021024; }
+html.dark ::selection { background: #24406a; color: #eef4fb; }
 
+h1, h2, h3 { letter-spacing: -0.03em; }
+
+/* ---------- kartu ---------- */
 .card {
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(10px);
 }
 
+/* ---------- tile hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid var(--hero-border);
+  background: var(--hero-bg);
+  color: var(--hero-fg);
+  box-shadow: var(--hero-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.hero-accent { color: var(--hero-accent); }
+.hero-muted { color: var(--hero-muted); }
+.hero-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  border-radius: 999px; padding: 12px 20px; font-weight: 700; font-size: 14px;
+  background: var(--hero-btn-bg); color: var(--hero-btn-fg);
+  box-shadow: 0 12px 26px -12px rgba(2, 16, 36, 0.7);
+  transition: transform 0.15s ease;
+}
+.hero-btn:hover { transform: translateY(-1px); }
+.hero-btn .go {
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--hero-btn-fg) 40%, transparent);
+}
+
+/* ---------- navigasi rail (desktop) & tab bar (mobile) ---------- */
+.rail-item {
+  display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px;
+  color: var(--rail-fg); transition: background 0.15s, color 0.15s;
+}
+.rail-item:hover { background: rgba(125, 160, 202, 0.16); color: var(--rail-on-bg); }
+.rail-item[aria-current="page"] { background: var(--rail-on-bg); color: var(--rail-on-fg); }
+
+/* ---------- skeleton ---------- */
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: #e5e7eb;
+  background: var(--color-slate-200);
 }
 .skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
   animation: shimmer 1.4s infinite;
 }
-@keyframes shimmer {
-  100% { transform: translateX(100%); }
+html.dark .skeleton::after { background: linear-gradient(90deg, transparent, rgba(193, 232, 255, 0.08), transparent); }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+@keyframes sweep { to { transform: rotate(360deg); } }
+@keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
+
 section[id] { scroll-margin-top: 92px; }
+
+/* =====================================================================================
+   Komponen bersama versi aplikasi (formulir, segmen, sheet, tab bar HP)
+   ===================================================================================== */
+
+/* kolom isian: tinggi 54px, ikon di kiri (beri pl-12 bila tanpa ikon: tambahkan kelas "no-icon") */
+.field {
+  width: 100%; height: 54px; border-radius: 16px; border: 1.5px solid var(--line);
+  background: var(--surface-solid); color: var(--text); padding: 0 14px 0 46px; font-size: 15px; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field.no-icon { padding-left: 14px; }
+.field:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+.field:disabled, .field[readonly] { opacity: 0.75; cursor: not-allowed; }
+
+/* pilihan 2-3 segmen (mis. "Mahasiswa & staf" | "Orang tua") */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: 18px; border: 1px solid var(--line); background: var(--color-slate-100); }
+.seg > * { display: grid; place-items: center; height: 42px; border-radius: 14px; font-size: 14px; font-weight: 700; color: var(--muted); text-align: center; transition: background 0.2s, color 0.2s; }
+.seg > [aria-current="page"], .seg > .on { background: var(--accent); color: var(--surface-solid); }
+html:not(.dark) .seg > [aria-current="page"], html:not(.dark) .seg > .on { background: var(--color-blue-700); color: #fff; }
+
+/* tab bar HP: ikon + nama, item aktif diberi pil */
+.tab-item { display: grid; flex: 1; justify-items: center; align-content: center; gap: 2px; height: 100%; min-width: 0; font-size: 10.5px; font-weight: 700; color: var(--rail-fg); }
+.tab-item .pill { display: grid; place-items: center; width: 46px; height: 30px; border-radius: 15px; transition: background 0.2s, color 0.2s; }
+.tab-item[aria-current="page"] { color: var(--rail-on-bg); }
+.tab-item[aria-current="page"] .pill { background: var(--rail-on-bg); color: var(--rail-on-fg); }
+
+/* sheet bawah (menu "Lainnya" di HP) */
+@keyframes sheet-up { from { transform: translateY(100%); } }
+@keyframes fade-in { from { opacity: 0; } }
+.sheet-bg { position: fixed; inset: 0; z-index: 50; background: rgba(2, 10, 24, 0.55); animation: fade-in 0.2s both; }
+.sheet { position: fixed; inset-inline: 0; bottom: 0; z-index: 51; max-height: 86vh; overflow-y: auto; border-radius: 30px 30px 0 0; border: 1px solid var(--line); background: var(--bg); padding: 10px 18px calc(22px + env(safe-area-inset-bottom, 0px)); animation: sheet-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sheet::before { content: ""; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--ring-track); margin: 0 auto 14px; }
+
+/* baris daftar di HP (pengganti tabel lebar) */
+.row-card { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 20px; border: 1px solid var(--line); background: var(--surface-solid); }
+
+/* kartu identitas mahasiswa */
+.idc { position: relative; overflow: hidden; border-radius: 30px; padding: 20px; background: var(--hero-bg); color: var(--hero-fg); border: 1px solid var(--hero-border); box-shadow: var(--hero-shadow); }
+.idc .wm { position: absolute; right: -28px; bottom: -34px; width: 160px; height: 160px; opacity: 0.1; }
+.idc dt { font-size: 11px; font-weight: 700; color: var(--hero-muted); }
+.idc dd { margin: 2px 0 0; font-size: 14px; font-weight: 700; line-height: 1.25; }

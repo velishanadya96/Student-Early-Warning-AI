@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { useDosenDashboard } from "@/hooks/useData";
+import { MahasiswaCards } from "@/components/risk/MahasiswaCards";
 import { Empty, ErrorBox, FaktorChips, KategoriBadge, Loading } from "@/components/risk/RiskParts";
 import { num, pct } from "@/lib/dataApi";
 
@@ -22,7 +23,9 @@ export default function StudentList() {
         {q.isError && <ErrorBox error={q.error} onRetry={() => q.refetch()} />}
         {q.data && rows.length === 0 && <Empty>Mahasiswa tidak ditemukan.</Empty>}
         {rows.length > 0 && (
-          <div className="overflow-x-auto">
+          <>
+          <MahasiswaCards rows={rows} extra={(m) => <p className="mt-2.5 text-xs text-slate-500">Orang tua: {m.orang_tua ? `${m.orang_tua.nama}${m.orang_tua.no_wa ? ` · +${m.orang_tua.no_wa}` : " (no WA kosong)"}` : "belum daftar"}</p>} />
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">NIM</th><th className="p-3">Nama</th><th className="p-3">Angk.</th><th className="p-3">IPK</th><th className="p-3">Kehadiran</th><th className="p-3">Tugas</th><th className="p-3">Kategori</th><th className="p-3">Penyebab</th><th className="p-3">Orang tua</th></tr></thead>
               <tbody>
@@ -37,6 +40,7 @@ export default function StudentList() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </Card>
     </section>

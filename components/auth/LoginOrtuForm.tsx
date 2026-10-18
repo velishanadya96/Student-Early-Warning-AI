@@ -43,14 +43,14 @@ export default function LoginOrtuForm() {
   }
 
   const input =
-    "w-full rounded-xl border border-slate-200 py-3 pl-11 pr-4 text-sm outline-none focus:border-blue-500";
+    "field";
 
   return (
     <form onSubmit={submit} className="space-y-4">
       <label className="block text-sm font-semibold text-slate-700">
         NIM mahasiswa (anak)
         <div className="relative mt-1">
-          <UserRound className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
+          <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input className={input} value={nim} onChange={(e) => setNim(e.target.value)} placeholder="2024001" inputMode="numeric" />
         </div>
       </label>
@@ -58,7 +58,7 @@ export default function LoginOrtuForm() {
       <label className="block text-sm font-semibold text-slate-700">
         Email mahasiswa (anak)
         <div className="relative mt-1">
-          <Mail className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
+          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input className={input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@student.uns.ac.id" />
         </div>
       </label>
@@ -66,9 +66,9 @@ export default function LoginOrtuForm() {
       <label className="block text-sm font-semibold text-slate-700">
         Password orang tua
         <div className="relative mt-1">
-          <Lock className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
-          <input className={`${input} pr-11`} type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button type="button" onClick={() => setShow((v) => !v)} className="absolute right-4 top-3.5 text-slate-400" aria-label="Tampilkan password">
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <input className={`${input} pr-12`} type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button type="button" onClick={() => setShow((v) => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label="Tampilkan password">
             {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>

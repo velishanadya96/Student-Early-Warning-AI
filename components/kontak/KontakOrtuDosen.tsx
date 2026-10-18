@@ -27,7 +27,24 @@ export default function KontakOrtuDosen() {
         )}
         {kontak.data?.length === 0 && <p className="text-sm text-slate-500">Belum ada mahasiswa bimbingan.</p>}
         {kontak.data && kontak.data.length > 0 && (
-          <div className="overflow-x-auto">
+          <>
+          <ul className="space-y-3 md:hidden">
+            {kontak.data.map((row) => {
+              const link = waLink(row.no_wa_orang_tua, `Assalamualaikum, saya Dosen PA dari ${row.nama_mahasiswa}.`);
+              return (
+                <li key={row.nim} className="row-card !items-start">
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-bold">{row.nama_mahasiswa}</span>
+                    <span className="block text-xs tabular-nums text-slate-500">NIM {row.nim}</span>
+                    <span className="mt-2 block text-sm">{row.orang_tua ?? <span className="text-slate-400">Belum ada akun orang tua</span>}</span>
+                    {row.no_wa_orang_tua && <span className="block text-xs tabular-nums text-slate-500">+{row.no_wa_orang_tua}</span>}
+                  </span>
+                  {link && <a href={link} target="_blank" rel="noopener noreferrer" className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white"><MessageCircle size={14} />Chat WA</a>}
+                </li>
+              );
+            })}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="border-b text-xs uppercase text-slate-500">
                 <tr><th className="p-3">NIM</th><th className="p-3">Mahasiswa</th><th className="p-3">Orang Tua</th><th className="p-3">No WhatsApp</th><th className="p-3"><span className="sr-only">Aksi</span></th></tr>
@@ -50,6 +67,7 @@ export default function KontakOrtuDosen() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </Card>
     </section>

@@ -10,7 +10,7 @@ import { useAuthConfig } from "@/hooks/useAuthConfig";
 import GoogleButton from "@/components/auth/GoogleButton";
 import ResendVerification from "@/components/auth/ResendVerification";
 
-const field = "w-full rounded-xl border border-slate-200 py-3.5 pl-10 pr-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:bg-slate-50 disabled:text-slate-500";
+const field = "field";
 const label = "mb-2 block text-sm font-bold text-slate-700";
 
 // Pendaftaran mahasiswa.
@@ -99,13 +99,9 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-md">
-      <div className="mb-7">
-        <p className="text-sm font-extrabold text-blue-600">Buat akun</p>
-        <h2 className="mt-1 text-3xl font-black tracking-tight text-slate-950">Daftar mahasiswa</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          {google ? "Daftar memakai akun Google dan NIM kamu. Hanya akun Google yang valid yang bisa mendaftar." : "Pendaftaran mandiri khusus mahasiswa. Akun dosen, kaprodi, dan admin dibuat oleh Admin."}
-        </p>
-      </div>
+      <p className="mb-6 text-sm leading-6 text-slate-500">
+        {google ? "Hanya akun Google yang valid yang bisa mendaftar." : "Pendaftaran mandiri khusus mahasiswa. Akun dosen, kaprodi, dan admin dibuat oleh Admin."}
+      </p>
 
       {error && <div role="alert" className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-medium text-red-700">{error}</div>}
       {configLoading && <p className="mb-4 text-sm text-slate-500">Memuat...</p>}
@@ -130,14 +126,14 @@ export default function RegisterForm() {
 
           <label htmlFor="register-name" className={label}>Nama lengkap</label>
           <div className="relative mb-4">
-            <UserRound className="absolute left-3 top-3.5 text-slate-400" size={18} />
+            <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input id="register-name" value={name} onChange={(e) => setName(e.target.value)} className={field} placeholder="Nama lengkap" disabled={Boolean(info?.nama_resmi)} required />
           </div>
           {info?.nama_resmi && <p className="-mt-3 mb-4 text-xs text-slate-400">Nama diambil dari data mahasiswa resmi.</p>}
 
           <label htmlFor="register-nim" className={label}>NIM</label>
           <div className="relative mb-2">
-            <UserRound className="absolute left-3 top-3.5 text-slate-400" size={18} />
+            <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input id="register-nim" value={nim} onChange={(e) => setNim(e.target.value)} className={field} placeholder="V3925047" disabled={Boolean(info?.nim)} required />
           </div>
           <p className="mb-4 text-xs text-slate-400">NIM dipakai untuk menghubungkan akun dengan data akademik di sistem.</p>
@@ -146,7 +142,7 @@ export default function RegisterForm() {
             <>
               <label htmlFor="register-email" className={label}>Email</label>
               <div className="relative mb-4">
-                <Mail className="absolute left-3 top-3.5 text-slate-400" size={18} />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input id="register-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={field} placeholder="nama@email.com" required />
               </div>
             </>
@@ -154,16 +150,16 @@ export default function RegisterForm() {
 
           <label htmlFor="register-password" className={label}>Password (untuk masuk dengan email)</label>
           <div className="relative mb-4">
-            <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input id="register-password" type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-11`} minLength={8} autoComplete="new-password" required />
-            <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-3.5 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>
+            <button type="button" onClick={() => setShow(!show)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>
               {show ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
           <label htmlFor="register-confirm" className={label}>Konfirmasi password</label>
           <div className="relative mb-6">
-            <Lock className="absolute left-3 top-3.5 text-slate-400" size={18} />
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input id="register-confirm" type="password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} className={field} minLength={8} autoComplete="new-password" required />
           </div>
 
