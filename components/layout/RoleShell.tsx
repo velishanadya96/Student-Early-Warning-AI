@@ -36,6 +36,7 @@ const config: Record<Role, { label: string; description: string; home: string; n
     nav: [
       { href: "/dashboard-orangtua", label: "Dashboard Anak", icon: LayoutDashboard },
       { href: "/dashboard-orangtua/risiko", label: "Status Risiko", icon: ShieldAlert },
+      { href: "/dashboard-orangtua/notifikasi", label: "Notifikasi", icon: Bell },
       { href: "/dashboard-orangtua/kontak", label: "Kontak Dosen PA", icon: MessageCircle },
     ],
   },
@@ -67,7 +68,7 @@ export default function RoleShell({ role, children }: Readonly<{ role: Role; chi
         <div className="flex items-center gap-2">
           <span className="hidden rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 sm:inline">{current.label}</span>
           <button aria-label="Ubah tema" onClick={toggleTheme} className="rounded-lg p-2 hover:bg-slate-100">{theme === "light" ? <Moon size={18} /> : <Sun size={18} />}</button>
-          <Link href={role === "admin" ? "/dashboard-admin" : role === "kaprodi" ? "/dashboard-kaprodi/risiko" : "/dashboard-orangtua/risiko"} aria-label="Notifikasi" className="rounded-lg p-2 hover:bg-slate-100"><Bell size={18} /></Link>
+          <Link href={role === "admin" ? "/dashboard-admin" : role === "kaprodi" ? "/dashboard-kaprodi/risiko" : "/dashboard-orangtua/notifikasi"} aria-label="Notifikasi" className="rounded-lg p-2 hover:bg-slate-100"><Bell size={18} /></Link>
           <button onClick={logout} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold hover:bg-slate-100"><LogOut size={17} /><span className="hidden sm:inline">Keluar</span></button>
         </div>
       </header>

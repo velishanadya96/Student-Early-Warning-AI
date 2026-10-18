@@ -1,23 +1,21 @@
 "use client";
 
-import { useInterventionsQuery } from "@/hooks/useData";
+import { useCatatan } from "@/hooks/useData";
+import { Empty, ErrorBox, Loading } from "@/components/risk/RiskParts";
 
-export default function InterventionList() {
-  const { data, isLoading, isError } = useInterventionsQuery();
-
-  if (isLoading) return <div className="space-y-3">{[1,2].map((x) => <div key={x} className="skeleton h-20 rounded-xl" />)}</div>;
-  if (isError) return <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">Gagal memuat catatan.</div>;
-  if (!data?.length) return <div className="rounded-xl border border-dashed p-8 text-center text-sm text-slate-500">Belum ada catatan tindak lanjut.</div>;
-
+export default function InterventionList({ nim }: { nim: string }) {
+  const { data, isLoading, isError, error } = useCatatan(nim);
+  if (!nim) return <Empty>Belum ada mahasiswa bimbingan.</Empty>;
+  if (isLoading) return <Loading rows={2} h="h-20" />;
+  if (isError) return <ErrorBox error={error} />;
+  if (!data?.length) return <Empty>Belum ada catatan untuk {nim}.</Empty>;
   return (
     <div className="space-y-3">
-      {data.map((item) => (
-        <article key={item.id} className="rounded-xl border p-4">
-          <div className="flex justify-between gap-3">
-            <p className="font-bold">{item.nim}</p>
-            <time className="text-xs text-slate-400">{item.date}</time>
-          </div>
-          <p className="mt-2 text-sm text-slate-600">{item.note}</p>
+      {data.map((c) => (
+        <article key={c.id} className="rounded-xl border p-4">
+          <div className="flex justify-between gap-3"><p className="font-bold">{c.nim}{c.periode ? <span className="ml-2 text-xs font-normal text-slate-400">periode {c.periode}</span> : null}</p><time className="text-xs text-slate-400">{c.tanggal}</time></div>
+          <p className="mt-2 whitespace-pre-line text-sm text-slate-600">{c.isi_catatan}</p>
+          {c.isi_pesan && <p className="mt-2 rounded-lg bg-blue-50 p-2 text-xs text-blue-800">Pesan ke mahasiswa: {c.isi_pesan}</p>}
         </article>
       ))}
     </div>

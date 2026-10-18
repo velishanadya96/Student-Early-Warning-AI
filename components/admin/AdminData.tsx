@@ -1,44 +1,110 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
-import { CheckCircle2, FileSpreadsheet, RefreshCw, UploadCloud, XCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { CheckCircle2, Download, FileSpreadsheet, PlayCircle, UploadCloud, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { studentsDb } from "@/lib/mockDb";
+import { Badge } from "@/components/ui/Badge";
+import { useHitungRisiko, useAdminDashboard } from "@/hooks/useData";
+import { ImportFailed, importApi, periodeSekarang } from "@/lib/dataApi";
+import type { HitungHasil, ImportError, ImportHasil } from "@/lib/types";
 
-function parseCsv(text: string) {
-  const lines = text.trim().split(/\r?\n/).filter(Boolean);
-  if (lines.length < 2) throw new Error("File CSV belum memiliki data.");
-  const headers = (lines[0] ?? "").split(",").map((value) => value.trim().toLowerCase());
-  const required = ["nim", "nama", "ipk", "presensi", "lms", "tugas"];
-  const missing = required.filter((header) => !headers.includes(header));
-  if (missing.length) throw new Error(`Kolom wajib belum lengkap: ${missing.join(", ")}.`);
-  return lines.slice(1).map((line) => { const values = line.split(",").map((value) => value.trim()); return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])); });
+type Hasil = { jenis: string; ok?: ImportHasil; errors?: ImportError[]; totalError?: number; pesan?: string };
+
+function Unggah({ jenis, judul, deskripsi, kolom, contoh, periode, onHasil }: {
+  jenis: "akademik" | "tugas"; judul: string; deskripsi: string; kolom: string; contoh: string; periode: string; onHasil: (h: Hasil) => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function unggah() {
+    if (!file) return;
+    setBusy(true);
+    try {
+      onHasil({ jenis: judul, ok: await importApi(jenis, file, periode) });
+      setFile(null); if (ref.current) ref.current.value = "";
+    } catch (e) {
+      onHasil(e instanceof ImportFailed ? { jenis: judul, errors: e.errors, totalError: e.totalError, pesan: e.message } : { jenis: judul, pesan: e instanceof Error ? e.message : "Gagal mengunggah." });
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <Card>
+      <FileSpreadsheet className="text-blue-600" />
+      <h2 className="mt-3 font-bold">{judul}</h2>
+      <p className="mt-1 text-sm text-slate-500">{deskripsi}</p>
+      <p className="mt-3 text-xs text-slate-500">Kolom: <code className="rounded bg-slate-100 px-1">{kolom}</code></p>
+      <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold hover:bg-slate-50">
+        <UploadCloud size={17} className="mr-2" />{file ? file.name : "Pilih file .csv / .xlsx"}
+        <input ref={ref} data-testid={`file-${jenis}`} type="file" accept=".csv,.xlsx,text/csv" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+      </label>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <Button onClick={unggah} disabled={!file || busy}>{busy ? "Mengunggah..." : `Unggah ke periode ${periode}`}</Button>
+        <a href={`/templates/${contoh}`} download className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600"><Download size={14} />Unduh contoh</a>
+      </div>
+    </Card>
+  );
 }
 
 export default function AdminData() {
-  const [status, setStatus] = useState("Belum ada sinkronisasi pada sesi ini.");
-  const [fileName, setFileName] = useState("");
-  const [preview, setPreview] = useState<Record<string,string>[]>([]);
-  const [error, setError] = useState("");
-  const totalPreview = useMemo(() => preview.length || studentsDb.length, [preview.length]);
+  const [periode, setPeriode] = useState(periodeSekarang());
+  const [hasil, setHasil] = useState<Hasil | null>(null);
+  const [hitung, setHitung] = useState<HitungHasil | null>(null);
+  const [errHitung, setErrHitung] = useState("");
+  const mutasi = useHitungRisiko();
+  const adm = useAdminDashboard();
+  const periodeValid = /^20\d{2}-[12]$/.test(periode);
 
-  function sync(source: string) { setError(""); setStatus(`Sinkronisasi ${source} sedang diproses...`); window.setTimeout(() => setStatus(`${source} berhasil disinkronkan pada ${new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}.`), 500); }
-
-  function handleFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setFileName(file.name); setError("");
-    if (!file.name.toLowerCase().endsWith(".csv")) { setError("Demo impor saat ini menerima file CSV. Format Excel dapat ditambahkan saat backend tersedia."); return; }
-    const reader = new FileReader();
-    reader.onload = () => { try { const rows = parseCsv(String(reader.result)); setPreview(rows.slice(0, 5)); setStatus(`File ${file.name} tervalidasi. ${rows.length} baris siap diimpor.`); } catch (err) { setError(err instanceof Error ? err.message : "File tidak dapat dibaca."); setPreview([]); } };
-    reader.readAsText(file);
+  function jalankan() {
+    setErrHitung(""); setHitung(null);
+    mutasi.mutate(periode, { onSuccess: setHitung, onError: (e) => setErrHitung(e.message) });
   }
 
-  return <section className="space-y-6"><div><p className="text-sm font-semibold text-blue-600">Administrator</p><h1 className="text-2xl font-bold">Manajemen Data Akademik</h1><p className="mt-1 text-sm text-slate-500">FR-02 dan FR-03: validasi serta simulasi impor data SIAKAD dan LMS.</p></div>
-    <div className="grid gap-5 lg:grid-cols-2"><Card><div className="flex items-start justify-between"><div><FileSpreadsheet className="text-blue-600"/><h2 className="mt-3 font-bold">SIAKAD</h2><p className="mt-1 text-sm text-slate-500">Nilai, IPK/IPS, dan presensi mahasiswa.</p></div><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Terhubung</span></div><Button className="mt-5" onClick={() => sync("SIAKAD")}><RefreshCw size={16} className="mr-2"/>Sinkronkan Data</Button></Card>
-      <Card><div className="flex items-start justify-between"><div><FileSpreadsheet className="text-indigo-600"/><h2 className="mt-3 font-bold">LMS</h2><p className="mt-1 text-sm text-slate-500">Aktivitas belajar dan pengumpulan tugas.</p></div><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Terhubung</span></div><label className="mt-5 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold hover:bg-slate-50"><UploadCloud size={17} className="mr-2"/>Pilih CSV LMS<input type="file" accept=".csv,text/csv" className="sr-only" onChange={handleFile}/></label>{fileName && <p className="mt-2 text-xs text-slate-500">File: {fileName}</p>}</Card></div>
-    <Card><div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-bold">Status Pipeline</h2><p className="text-sm text-slate-500">{status}</p></div>{error ? <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600"><XCircle size={16}/>Validasi gagal</span> : <span className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600"><CheckCircle2 size={16}/>Siap</span>}</div>{error && <div role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}</Card>
-    <Card><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-bold">Preview Data</h2><p className="text-sm text-slate-500">Menampilkan maksimal 5 baris dari data yang tersedia.</p></div><span className="text-xs font-semibold text-slate-400">{totalPreview} baris</span></div><div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">NIM</th><th className="p-3">Nama</th><th className="p-3">IPK</th><th className="p-3">Presensi</th><th className="p-3">LMS</th><th className="p-3">Tugas</th></tr></thead><tbody>{preview.length ? preview.map((row,index)=><tr key={`${row.nim}-${index}`} className="border-b"><td className="p-3">{row.nim}</td><td className="p-3 font-semibold">{row.nama}</td><td className="p-3">{row.ipk}</td><td className="p-3">{row.presensi}%</td><td className="p-3">{row.lms}%</td><td className="p-3">{row.tugas}%</td></tr>) : studentsDb.slice(0,5).map((student)=><tr key={student.nim} className="border-b"><td className="p-3">{student.nim}</td><td className="p-3 font-semibold">{student.name}</td><td className="p-3">{student.gpa.toFixed(2)}</td><td className="p-3">{student.attendance}%</td><td className="p-3">{student.lms}%</td><td className="p-3">{student.assignments}%</td></tr>)}</tbody></table></div></Card>
-  </section>;
+  return (
+    <section className="space-y-6">
+      <div><p className="text-sm font-semibold text-blue-600">Administrator</p><h1 className="text-2xl font-bold">Data Akademik &amp; Hitung Risiko</h1>
+        <p className="mt-1 text-sm text-slate-500">Urutan: (1) unggah data akademik, (2) unggah data tugas, (3) hitung risiko. Dosen, mahasiswa, dan orang tua langsung melihat hasilnya; orang tua mahasiswa Tinggi dikirimi WhatsApp.</p></div>
+
+      <Card>
+        <label className="text-sm font-semibold">Periode akademik <input value={periode} onChange={(e) => setPeriode(e.target.value.trim())} aria-label="Periode" className="ml-2 w-28 rounded-xl border border-slate-200 px-3 py-2 font-normal" placeholder="2026-1" /></label>
+        <span className="ml-3 text-xs text-slate-500">Format TAHUN-1 (ganjil, Agu-Jan) atau TAHUN-2 (genap, Feb-Jul). {adm.data?.periode_tersedia.length ? `Sudah ada: ${adm.data.periode_tersedia.join(", ")}.` : ""}</span>
+        {!periodeValid && <p role="alert" className="mt-2 text-sm text-red-600">Periode harus berformat 2026-1 atau 2026-2.</p>}
+      </Card>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Unggah jenis="akademik" judul="1. Data Akademik (nilai + kehadiran)" deskripsi="Satu baris = satu mahasiswa x satu mata kuliah. NIM yang belum ada otomatis dibuat (isi kolom nama). Isi nidn_dosen_pa agar mahasiswa masuk bimbingan dosen."
+          kolom="nim, kode_mk, nilai_mk, total_pertemuan, hadir [+ nama, prodi, angkatan, ipk, nidn_dosen_pa]" contoh="contoh-akademik-2026-1.csv" periode={periode} onHasil={setHasil} />
+        <Unggah jenis="tugas" judul="2. Data Tugas" deskripsi="Satu baris = satu tugas. Kosongkan waktu_kumpul bila belum dikumpulkan. Unggah data akademik lebih dulu."
+          kolom="nim, kode_mk [+ judul, waktu_kumpul, status_terlambat]" contoh="contoh-tugas-2026-1.csv" periode={periode} onHasil={setHasil} />
+      </div>
+
+      {hasil && (
+        <Card tone={hasil.ok ? "blue" : "red"} role="status" data-testid="hasil-impor">
+          <div className="flex items-center gap-2 font-bold">{hasil.ok ? <CheckCircle2 className="text-emerald-600" size={18} /> : <XCircle className="text-red-600" size={18} />}{hasil.jenis}</div>
+          {hasil.ok && <p className="mt-2 text-sm">Berhasil: {hasil.ok.baris} baris, {hasil.ok.mahasiswa} mahasiswa{hasil.ok.mahasiswa_baru ? ` (${hasil.ok.mahasiswa_baru} baru)` : ""}{hasil.ok.terkumpul !== undefined ? `, ${hasil.ok.terkumpul} tugas terkumpul` : ""} untuk periode {hasil.ok.periode}. Lanjutkan ke langkah berikutnya.</p>}
+          {!hasil.ok && <p className="mt-2 text-sm text-red-700">{hasil.pesan}</p>}
+          {hasil.errors && (
+            <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-2">Baris</th><th className="p-2">Kolom</th><th className="p-2">Masalah</th></tr></thead>
+              <tbody>{hasil.errors.map((e, i) => <tr key={i} className="border-b last:border-0"><td className="p-2 font-mono">{e.baris}</td><td className="p-2">{e.kolom}</td><td className="p-2">{e.pesan}</td></tr>)}</tbody></table>
+              {(hasil.totalError ?? 0) > hasil.errors.length && <p className="mt-2 text-xs text-slate-500">Menampilkan {hasil.errors.length} dari {hasil.totalError} masalah.</p>}</div>
+          )}
+        </Card>
+      )}
+
+      <Card>
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-bold">3. Hitung Risiko &amp; Kirim Notifikasi</h2><p className="text-sm text-slate-500">Model menghitung skor semua mahasiswa pada periode {periode}. Notifikasi dan WhatsApp hanya dibuat untuk mahasiswa yang BARU masuk kategori Tinggi.</p></div>
+          <Button onClick={jalankan} disabled={mutasi.isPending || !periodeValid}><PlayCircle size={17} className="mr-2" />{mutasi.isPending ? "Menghitung..." : "Hitung risiko"}</Button></div>
+        {errHitung && <div role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{errHitung}</div>}
+        {hitung && (
+          <div className="mt-4 space-y-3" data-testid="hasil-hitung">
+            <div className="flex flex-wrap gap-2"><Badge variant="neutral">{hitung.dihitung} dihitung</Badge><Badge variant="high">{hitung.High} tinggi</Badge><Badge variant="medium">{hitung.Medium} sedang</Badge><Badge variant="low">{hitung.Low} rendah</Badge></div>
+            <p className="text-sm text-slate-700">{hitung.baru_high.length ? `${hitung.baru_high.length} mahasiswa baru masuk Tinggi (${hitung.baru_high.join(", ")}). ` : "Tidak ada mahasiswa baru masuk Tinggi. "}{hitung.notifikasi_wa} pesan WhatsApp ke orang tua dibuat.</p>
+            {hitung.high_tanpa_ortu.length > 0 && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Belum bisa dikirimi WhatsApp karena orang tua belum mendaftar / belum mengisi nomor: {hitung.high_tanpa_ortu.join(", ")}.</p>}
+            {hitung.high_tanpa_dosen_pa.length > 0 && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Belum punya Dosen PA (tidak muncul di dashboard dosen mana pun): {hitung.high_tanpa_dosen_pa.join(", ")}.</p>}
+          </div>
+        )}
+      </Card>
+    </section>
+  );
 }

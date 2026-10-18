@@ -1,30 +1,44 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRisksQuery } from "@/hooks/useData";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { useDosenDashboard } from "@/hooks/useData";
+import { Empty, ErrorBox, FaktorList, FiturBars, KategoriBadge, Loading } from "@/components/risk/RiskParts";
+import type { Kategori } from "@/lib/types";
+
+const FILTER: ("Semua" | Kategori)[] = ["Semua", "High", "Medium", "Low"];
+const NAMA = { Semua: "Semua", High: "Tinggi", Medium: "Sedang", Low: "Rendah" } as const;
 
 export default function RiskPage() {
-  const { data, isLoading, isError, refetch } = useRisksQuery();
-  const [filter, setFilter] = useState<"Semua" | "Rendah" | "Sedang" | "Tinggi">("Semua");
-  const filtered = useMemo(() => filter === "Semua" ? (data ?? []) : (data ?? []).filter((x) => x.category === filter), [data, filter]);
+  const q = useDosenDashboard();
+  const [filter, setFilter] = useState<"Semua" | Kategori>("Semua");
+  const rows = useMemo(() => (q.data?.mahasiswa ?? []).filter((m) => m.kategori && (filter === "Semua" || m.kategori === filter)), [q.data, filter]);
 
   return (
     <section>
-      <div className="mb-6"><h1 className="text-2xl font-bold">Risk Score</h1><p className="mt-1 text-sm text-slate-500">Hasil perhitungan risiko berdasarkan IPK, presensi, aktivitas LMS, dan tugas.</p></div>
+      <div className="mb-6"><h1 className="text-2xl font-bold">Risk Score</h1><p className="mt-1 text-sm text-slate-500">Hasil model Random Forest dari IPK, rata-rata nilai, kehadiran, dan pengumpulan tugas, beserta alasannya.</p></div>
       <Card>
         <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter kategori risiko">
-            {(["Semua", "Rendah", "Sedang", "Tinggi"] as const).map((item) => <button key={item} onClick={() => setFilter(item)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${filter === item ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>{item}</button>)}
+            {FILTER.map((f) => <button key={f} onClick={() => setFilter(f)} className={`rounded-xl px-4 py-2 text-sm font-semibold ${filter === f ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600"}`}>{NAMA[f]}</button>)}
           </div>
-          <Button size="sm" variant="secondary" onClick={() => refetch()}>Refresh</Button>
+          <Button size="sm" variant="secondary" onClick={() => q.refetch()}>Refresh</Button>
         </div>
-        {isLoading && <div className="space-y-3" aria-live="polite">{[1,2,3].map((x) => <div key={x} className="skeleton h-16 rounded-lg" />)}</div>}
-        {isError && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">Gagal memuat risk score. <Button size="sm" variant="secondary" onClick={() => refetch()}>Coba lagi</Button></div>}
-        {!isLoading && !isError && filtered.length === 0 && <div className="rounded-xl border border-dashed p-8 text-center text-sm text-slate-500">Tidak ada data pada kategori ini.</div>}
-        {!isLoading && !isError && filtered.length > 0 && <div className="space-y-3">{filtered.map((risk) => <article key={risk.nim} className="flex flex-col justify-between gap-3 rounded-xl border p-4 sm:flex-row sm:items-center"><div><h2 className="font-bold">{risk.name}</h2><p className="text-xs text-slate-400">{risk.nim} · Diperbarui {risk.updatedAt}</p><p className="mt-1 text-sm text-slate-500">Faktor dominan: {risk.dominantFactor}</p></div><div className="flex items-center gap-4"><div className="text-right"><p className="text-xs text-slate-400">Skor</p><p className="text-2xl font-bold">{risk.score}</p></div><Badge variant={risk.category === "Tinggi" ? "high" : risk.category === "Sedang" ? "medium" : "low"}>{risk.category}</Badge></div></article>)}</div>}
+        {q.isLoading && <Loading h="h-24" />}
+        {q.isError && <ErrorBox error={q.error} onRetry={() => q.refetch()} />}
+        {q.data && rows.length === 0 && <Empty>Tidak ada data pada kategori ini. Skor muncul setelah Admin mengimpor data dan menghitung risiko.</Empty>}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {rows.map((m) => (
+            <article key={m.nim} className="rounded-xl border p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div><h2 className="font-bold">{m.nama}</h2><p className="text-xs text-slate-400">{m.nim} · periode {m.periode}</p></div>
+                <div className="text-right"><p className="text-xs text-slate-400">Peluang risiko tinggi</p><p className="text-xl font-bold">{m.skor === null ? "-" : `${Math.round(m.skor * 100)}%`}</p><KategoriBadge kategori={m.kategori} /></div>
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2"><div><p className="mb-2 text-xs font-bold uppercase text-slate-400">Indikator</p><FiturBars fitur={m.fitur} faktor={m.faktor} /></div><div><p className="mb-2 text-xs font-bold uppercase text-slate-400">Penyebab</p><FaktorList faktor={m.faktor} kosong="Tidak ada penyebab menonjol." /></div></div>
+            </article>
+          ))}
+        </div>
       </Card>
     </section>
   );
