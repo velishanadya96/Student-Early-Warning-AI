@@ -20,7 +20,7 @@ export default function VerifyEmailClient() {
       .catch((e) => { setState("error"); setMessage(e instanceof Error ? e.message : "Verifikasi gagal."); });
   }, [token]);
 
-  if (state === "loading") return <p className="mt-6 text-center text-sm text-slate-500">Memverifikasi email kamu...</p>;
+  if (state === "loading") return <p className="mt-6 text-center text-sm text-slate-500">Memverifikasi email...</p>;
   const ok = state === "ok";
   return (
     <div className={`mt-6 rounded-2xl border p-5 text-sm ${ok ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800"}`} role="status">

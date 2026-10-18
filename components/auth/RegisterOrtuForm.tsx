@@ -52,14 +52,14 @@ export default function RegisterOrtuForm() {
   if (success) {
     return (
       <div role="status" className="mx-auto max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800">
-        <div className="flex items-center gap-2 font-bold"><CheckCircle2 size={19} /> Akun orang tua berhasil dibuat dan tersimpan di database.</div>
+        <div className="flex items-center gap-2 font-bold"><CheckCircle2 size={19} /> Akun orang tua berhasil dibuat</div>
         {needVerify ? (
           <>
             <p className="mt-2 leading-6">Kami mengirim tautan verifikasi ke <b>{f.email.trim().toLowerCase()}</b>. Klik tautan itu (berlaku 24 jam), lalu <Link href="/login-ortu" className="font-bold underline">masuk</Link>. Cek juga folder spam.</p>
             <ResendVerification email={f.email_mahasiswa.trim().toLowerCase()} nim={f.nim.trim()} className="mt-3" />
           </>
         ) : (
-          <p className="mt-2 leading-6">Kamu akan diarahkan ke halaman <Link href="/login-ortu" className="font-bold underline">masuk</Link>.</p>
+          <p className="mt-2 leading-6">Anda akan diarahkan ke halaman <Link href="/login-ortu" className="font-bold underline">masuk</Link>.</p>
         )}
       </div>
     );
@@ -73,7 +73,7 @@ export default function RegisterOrtuForm() {
       <label htmlFor="ro-email" className={label}>Email orang tua</label>
       <div className="relative mb-4"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-email" type="email" value={f.email} onChange={set("email")} className={field} placeholder="nama@gmail.com" autoComplete="email" required /></div>
 
-      <label htmlFor="ro-wa" className={label}>No WhatsApp (untuk notifikasi)</label>
+      <label htmlFor="ro-wa" className={label}>Nomor WhatsApp (untuk notifikasi)</label>
       <div className="relative mb-4"><Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-wa" value={f.no_wa} onChange={set("no_wa")} className={field} placeholder="081234567890" inputMode="tel" required /></div>
 
       <label htmlFor="ro-pass" className={label}>Password (min. 8 karakter)</label>
@@ -84,13 +84,13 @@ export default function RegisterOrtuForm() {
 
       <p className="mb-3 border-t border-slate-100 pt-4 text-xs text-slate-400">Verifikasi anak: NIM dan email harus cocok dengan data mahasiswa di sistem. Satu mahasiswa hanya bisa punya satu akun orang tua.</p>
       <label htmlFor="ro-nim" className={label}>NIM mahasiswa (anak)</label>
-      <div className="relative mb-4"><UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-nim" value={f.nim} onChange={set("nim")} className={field} placeholder="2024001" inputMode="numeric" required /></div>
+      <div className="relative mb-4"><UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-nim" value={f.nim} onChange={set("nim")} className={field} placeholder="V3924001" required /></div>
 
       <label htmlFor="ro-em" className={label}>Email mahasiswa (anak)</label>
-      <div className="relative mb-6"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-em" type="email" value={f.email_mahasiswa} onChange={set("email_mahasiswa")} className={field} placeholder="nama@student.uns.ac.id" required /></div>
+      <div className="relative mb-6"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-em" type="email" value={f.email_mahasiswa} onChange={set("email_mahasiswa")} className={field} placeholder="nama@gmail.com" required /></div>
 
       {error && <div role="alert" className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-medium text-red-700">{error}</div>}
-      <Button type="submit" size="lg" className="w-full" disabled={submitting}>{submitting ? "Memproses..." : "Daftar sebagai Orang Tua"}</Button>
+      <Button type="submit" size="lg" className="w-full" disabled={submitting}>{submitting ? "Memproses..." : "Daftar sebagai orang tua"}</Button>
       <p className="mt-6 text-center text-sm text-slate-500">Sudah punya akun? <Link href="/login-ortu" className="font-bold text-blue-600 hover:underline">Masuk</Link></p>
     </form>
   );

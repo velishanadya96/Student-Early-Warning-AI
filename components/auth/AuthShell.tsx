@@ -13,7 +13,7 @@ function RoleSwitch({ mode, role }: Switch) {
   const base = mode === "login" ? "/login" : "/register";
   return (
     <nav className="seg mb-6" aria-label="Jenis akun">
-      <Link href={base} aria-current={role === "staf" ? "page" : undefined}>Mahasiswa &amp; staf</Link>
+      <Link href={base} aria-current={role === "staf" ? "page" : undefined}>{mode === "login" ? "Mahasiswa & staf" : "Mahasiswa"}</Link>
       <Link href={`${base}-ortu`} aria-current={role === "ortu" ? "page" : undefined}>Orang tua</Link>
     </nav>
   );

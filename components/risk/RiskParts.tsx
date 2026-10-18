@@ -29,7 +29,7 @@ export function Empty({ children }: { children: React.ReactNode }) {
 }
 
 /** Daftar penyebab risiko (kehadiran / IPK / nilai / tugas) dalam kalimat yang mudah dibaca. */
-export function FaktorList({ faktor, kosong = "Tidak ada indikator yang menonjol." }: { faktor: Faktor[]; kosong?: string }) {
+export function FaktorList({ faktor, kosong = "Tidak ada penyebab yang menonjol." }: { faktor: Faktor[]; kosong?: string }) {
   if (!faktor.length) return <p className="text-sm text-slate-500">{kosong}</p>;
   return (
     <ul className="space-y-2">

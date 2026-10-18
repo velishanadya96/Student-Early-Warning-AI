@@ -42,10 +42,10 @@ async function handler(req: NextRequest, ctx: { params: Promise<{ path: string[]
     try {
       return await relay(await call(url, req.method, body, null, contentType));
     } catch {
-      return NextResponse.json({ code: "BACKEND_MATI", message: "Tidak bisa terhubung ke server backend. Pastikan Flask sudah jalan." }, { status: 502 });
+      return NextResponse.json({ code: "BACKEND_MATI", message: "Tidak bisa terhubung ke server. Coba lagi beberapa saat lagi." }, { status: 502 });
     }
   }
-  if (!access && !refresh) return NextResponse.json({ code: "TOKEN_TIDAK_ADA", message: "Silakan login terlebih dahulu." }, { status: 401 });
+  if (!access && !refresh) return NextResponse.json({ code: "TOKEN_TIDAK_ADA", message: "Silakan masuk terlebih dahulu." }, { status: 401 });
 
   try {
     let fresh: string | undefined;

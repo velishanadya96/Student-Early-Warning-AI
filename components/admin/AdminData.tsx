@@ -25,7 +25,7 @@ function Unggah({ jenis, judul, deskripsi, kolom, contoh, periode, onHasil }: {
       onHasil({ jenis: judul, ok: await importApi(jenis, file, periode) });
       setFile(null); if (ref.current) ref.current.value = "";
     } catch (e) {
-      onHasil(e instanceof ImportFailed ? { jenis: judul, errors: e.errors, totalError: e.totalError, pesan: e.message } : { jenis: judul, pesan: e instanceof Error ? e.message : "Gagal mengunggah." });
+      onHasil(e instanceof ImportFailed ? { jenis: judul, errors: e.errors, totalError: e.totalError, pesan: e.message } : { jenis: judul, pesan: e instanceof Error ? e.message : "Gagal mengunggah. Coba lagi." });
     } finally { setBusy(false); }
   }
 
@@ -36,7 +36,7 @@ function Unggah({ jenis, judul, deskripsi, kolom, contoh, periode, onHasil }: {
       <p className="mt-1 text-sm text-slate-500">{deskripsi}</p>
       <p className="mt-3 text-xs text-slate-500">Kolom: <code className="rounded bg-slate-100 px-1">{kolom}</code></p>
       <label className="mt-4 flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-slate-300 p-4 text-sm font-semibold hover:bg-slate-50">
-        <UploadCloud size={17} className="mr-2" />{file ? file.name : "Pilih file .csv / .xlsx"}
+        <UploadCloud size={17} className="mr-2" />{file ? file.name : "Pilih file CSV atau Excel"}
         <input ref={ref} data-testid={`file-${jenis}`} type="file" accept=".csv,.xlsx,text/csv" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       </label>
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -63,8 +63,8 @@ export default function AdminData() {
 
   return (
     <section className="space-y-6">
-      <div><p className="text-sm font-semibold text-blue-600">Administrator</p><h1 className="text-2xl font-bold">Data Akademik &amp; Hitung Risiko</h1>
-        <p className="mt-1 text-sm text-slate-500">Urutan: (1) unggah data akademik, (2) unggah data tugas, (3) hitung risiko. Dosen, mahasiswa, dan orang tua langsung melihat hasilnya; orang tua mahasiswa Tinggi dikirimi WhatsApp.</p></div>
+      <div><p className="text-sm font-semibold text-blue-600">Admin</p><h1 className="text-2xl font-bold">Data Akademik</h1>
+        <p className="mt-1 text-sm text-slate-500">Urutan: (1) unggah data akademik, (2) unggah data tugas, (3) hitung risiko. Dosen PA, mahasiswa, dan orang tua langsung melihat hasilnya; orang tua mahasiswa berisiko tinggi dikirimi WhatsApp.</p></div>
 
       <Card>
         <label className="text-sm font-semibold">Periode akademik <input value={periode} onChange={(e) => setPeriode(e.target.value.trim())} aria-label="Periode" className="ml-2 w-28 rounded-xl border border-slate-200 px-3 py-2 font-normal" placeholder="2026-1" /></label>
@@ -93,15 +93,15 @@ export default function AdminData() {
       )}
 
       <Card>
-        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-bold">3. Hitung Risiko &amp; Kirim Notifikasi</h2><p className="text-sm text-slate-500">Model menghitung skor semua mahasiswa pada periode {periode}. Notifikasi dan WhatsApp hanya dibuat untuk mahasiswa yang BARU masuk kategori Tinggi.</p></div>
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h2 className="text-lg font-bold">3. Hitung Risiko &amp; Kirim Notifikasi</h2><p className="text-sm text-slate-500">Model menghitung skor semua mahasiswa pada periode {periode}. Notifikasi dan WhatsApp hanya dibuat untuk mahasiswa yang baru masuk risiko tinggi.</p></div>
           <Button onClick={jalankan} disabled={mutasi.isPending || !periodeValid}><PlayCircle size={17} className="mr-2" />{mutasi.isPending ? "Menghitung..." : "Hitung risiko"}</Button></div>
         {errHitung && <div role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{errHitung}</div>}
         {hitung && (
           <div className="mt-4 space-y-3" data-testid="hasil-hitung">
             <div className="flex flex-wrap gap-2"><Badge variant="neutral">{hitung.dihitung} dihitung</Badge><Badge variant="high">{hitung.High} tinggi</Badge><Badge variant="medium">{hitung.Medium} sedang</Badge><Badge variant="low">{hitung.Low} rendah</Badge></div>
-            <p className="text-sm text-slate-700">{hitung.baru_high.length ? `${hitung.baru_high.length} mahasiswa baru masuk Tinggi (${hitung.baru_high.join(", ")}). ` : "Tidak ada mahasiswa baru masuk Tinggi. "}{hitung.notifikasi_wa} pesan WhatsApp ke orang tua dibuat.</p>
-            {hitung.high_tanpa_ortu.length > 0 && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Belum bisa dikirimi WhatsApp karena orang tua belum mendaftar / belum mengisi nomor: {hitung.high_tanpa_ortu.join(", ")}.</p>}
-            {hitung.high_tanpa_dosen_pa.length > 0 && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Belum punya Dosen PA (tidak muncul di dashboard dosen mana pun): {hitung.high_tanpa_dosen_pa.join(", ")}.</p>}
+            <p className="text-sm text-slate-700">{hitung.baru_high.length ? `${hitung.baru_high.length} mahasiswa baru masuk risiko tinggi (${hitung.baru_high.join(", ")}). ` : "Tidak ada mahasiswa yang baru masuk risiko tinggi. "}{hitung.notifikasi_wa} pesan WhatsApp ke orang tua dibuat.</p>
+            {hitung.high_tanpa_ortu.length > 0 && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Belum bisa dikirimi WhatsApp karena orang tua belum mendaftar atau belum mengisi nomor WA: {hitung.high_tanpa_ortu.join(", ")}.</p>}
+            {hitung.high_tanpa_dosen_pa.length > 0 && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Dosen PA belum ditetapkan (tidak muncul di dashboard Dosen PA mana pun): {hitung.high_tanpa_dosen_pa.join(", ")}.</p>}
           </div>
         )}
       </Card>

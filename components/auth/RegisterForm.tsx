@@ -73,7 +73,7 @@ export default function RegisterForm() {
       if (!res.verification_required) window.setTimeout(() => router.push(`/login?email=${encodeURIComponent(normalized)}`), 1500);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401 && google) { resetGoogle(); return setError("Sesi Google kedaluwarsa. Pilih akun Google lagi."); }
-      setError(e instanceof Error ? e.message : "Pendaftaran gagal.");
+      setError(e instanceof Error ? e.message : "Pendaftaran gagal. Coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function RegisterForm() {
     return (
       <div className="mx-auto max-w-md">
         <div role="status" className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800">
-          <div className="flex items-center gap-2 font-bold"><CheckCircle2 size={19} /> Pendaftaran berhasil.</div>
+          <div className="flex items-center gap-2 font-bold"><CheckCircle2 size={19} /> Pendaftaran berhasil</div>
           {done.verify ? (
             <>
               <p className="mt-2 leading-6">Akun tersimpan. Kami mengirim tautan verifikasi ke <b>{done.email}</b>. Klik tautan itu (berlaku 24 jam), lalu <Link href="/login" className="font-bold underline">masuk</Link>. Cek juga folder spam.</p>
@@ -134,7 +134,7 @@ export default function RegisterForm() {
           <label htmlFor="register-nim" className={label}>NIM</label>
           <div className="relative mb-2">
             <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input id="register-nim" value={nim} onChange={(e) => setNim(e.target.value)} className={field} placeholder="V3925047" disabled={Boolean(info?.nim)} required />
+            <input id="register-nim" value={nim} onChange={(e) => setNim(e.target.value)} className={field} placeholder="V3924001" disabled={Boolean(info?.nim)} required />
           </div>
           <p className="mb-4 text-xs text-slate-400">NIM dipakai untuk menghubungkan akun dengan data akademik di sistem.</p>
 
@@ -143,7 +143,7 @@ export default function RegisterForm() {
               <label htmlFor="register-email" className={label}>Email</label>
               <div className="relative mb-4">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input id="register-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={field} placeholder="nama@email.com" required />
+                <input id="register-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={field} placeholder="nama@gmail.com" required />
               </div>
             </>
           )}

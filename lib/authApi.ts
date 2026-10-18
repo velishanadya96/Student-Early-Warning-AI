@@ -36,7 +36,7 @@ async function request<T>(url: string, init: RequestInit): Promise<T> {
   try {
     res = await fetch(url, init);
   } catch {
-    throw new ApiError(`Tidak bisa terhubung ke server (${url}). Pastikan backend Flask sudah jalan.`, 0);
+    throw new ApiError("Tidak bisa terhubung ke server. Coba lagi beberapa saat lagi.", 0);
   }
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(json?.message ?? "Terjadi kesalahan pada server.", res.status, json?.code);

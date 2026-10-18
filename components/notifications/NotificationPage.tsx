@@ -20,18 +20,18 @@ function WaOrtu() {
 
   return (
     <section>
-      <div className="mb-6"><p className="text-sm font-semibold text-blue-600">Dosen PA</p><h1 className="text-2xl font-bold">Notifikasi WhatsApp ke Orang Tua</h1>
-        <p className="mt-1 text-sm text-slate-500">Saat mahasiswa masuk kategori Tinggi, sistem menyiapkan pesan untuk orang tua berisi penyebabnya (kehadiran, IPK, nilai, atau tugas).</p></div>
+      <div className="mb-6"><p className="text-sm font-semibold text-blue-600">Dosen PA</p><h1 className="text-2xl font-bold">Notifikasi WhatsApp</h1>
+        <p className="mt-1 text-sm text-slate-500">Saat mahasiswa masuk risiko tinggi, sistem menyiapkan pesan WhatsApp untuk orang tua berisi penyebabnya (kehadiran, IPK, nilai, atau tugas).</p></div>
       {q.data && (
         <div className="mb-5 rounded-2xl border border-blue-100 bg-blue-50/60 p-4 text-sm text-slate-700">
           {manual ? <><b>Mode manual.</b> Tekan <b>Kirim WhatsApp</b> untuk membuka WhatsApp dengan pesan siap kirim, kirim ke orang tua, lalu tekan <b>Tandai terkirim</b>.</>
             : <><b>Pengiriman otomatis ({q.data.provider}).</b> Pesan dikirim sistem; yang gagal dicoba ulang hingga 3 kali.{" "}
-              <Button size="sm" variant="secondary" onClick={() => proses.mutate()} disabled={proses.isPending}><RefreshCw size={14} className="mr-1" />Proses antrean sekarang</Button></>}
+              <Button size="sm" variant="secondary" onClick={() => proses.mutate()} disabled={proses.isPending}><RefreshCw size={14} className="mr-1" />Kirim semua yang tertunda</Button></>}
         </div>
       )}
       {q.isLoading && <Loading rows={3} h="h-32" />}
       {q.isError && <ErrorBox error={q.error} onRetry={() => q.refetch()} />}
-      {q.data && q.data.notifikasi.length === 0 && <Empty>Belum ada pesan. Pesan dibuat otomatis ketika mahasiswa bimbingan baru masuk kategori Tinggi dan orang tuanya sudah mendaftar dengan nomor WhatsApp.</Empty>}
+      {q.data && q.data.notifikasi.length === 0 && <Empty>Belum ada pesan. Pesan dibuat otomatis ketika mahasiswa bimbingan baru masuk risiko tinggi dan orang tuanya sudah mendaftar dengan nomor WhatsApp.</Empty>}
       <div className="space-y-4">
         {q.data?.notifikasi.map((n) => {
           const [label, variant] = STATUS[n.status as keyof typeof STATUS] ?? ["-", "neutral"];
@@ -65,7 +65,7 @@ function Sistem() {
   const list = q.data?.notifikasi ?? [];
   return (
     <section>
-      <div className="mb-6"><p className="text-sm font-semibold text-blue-600">Notifikasi</p><h1 className="text-2xl font-bold">Peringatan Dini</h1><p className="mt-1 text-sm text-slate-500">Muncul saat risiko akademik masuk kategori Tinggi atau ada pesan dari Dosen PA.</p></div>
+      <div className="mb-6"><p className="text-sm font-semibold text-blue-600">Peringatan dini</p><h1 className="text-2xl font-bold">Notifikasi</h1><p className="mt-1 text-sm text-slate-500">Muncul saat risiko akademik masuk risiko tinggi atau ada pesan dari Dosen PA.</p></div>
       <div className="mb-5 grid gap-4 sm:grid-cols-2"><Card tone="red"><ShieldAlert className="text-red-600" /><p className="mt-3 text-sm text-slate-500">Belum dibaca</p><p className="text-3xl font-bold">{q.data?.belum_dibaca ?? 0}</p></Card><Card><Bell className="text-blue-600" /><p className="mt-3 text-sm text-slate-500">Total notifikasi</p><p className="text-3xl font-bold">{list.length}</p></Card></div>
       <Card>
         {q.isLoading && <Loading rows={3} h="h-20" />}

@@ -57,7 +57,7 @@ export async function middleware(request: NextRequest) {
 
   if (!me) {
     const res = isApi
-      ? NextResponse.json({ code: "TOKEN_TIDAK_ADA", message: "Silakan login terlebih dahulu." }, { status: 401 })
+      ? NextResponse.json({ code: "TOKEN_TIDAK_ADA", message: "Silakan masuk terlebih dahulu." }, { status: 401 })
       : go(request, "/login");
     if (access || refresh) clearAuth(res); // cookie sudah tidak valid
     return res;

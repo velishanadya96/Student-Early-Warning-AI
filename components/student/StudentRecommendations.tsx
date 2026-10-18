@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/Card";
 import { useMahasiswaDashboard } from "@/hooks/useData";
 import { Empty, ErrorBox, Loading } from "@/components/risk/RiskParts";
+import { tanggal } from "@/lib/dataApi";
 
 const SARAN: Record<string, string> = {
   attendance_rate: "Prioritaskan kehadiran di perkuliahan berikutnya; jika ada kendala (kesehatan, transportasi, pekerjaan), sampaikan ke Dosen PA agar dicarikan solusi.",
@@ -20,7 +21,7 @@ export default function StudentRecommendations() {
   const items = [
     ...(t?.faktor.map((f) => ({ judul: f.singkat, isi: SARAN[f.kode] ?? "" })) ?? []),
     ...(t?.kategori === "High" ? [{ judul: "Temui Dosen PA", isi: "Hubungi Dosen PA untuk konseling akademik secepatnya." }] : []),
-    ...pesan.map((p) => ({ judul: `Pesan Dosen PA (${p.tanggal})`, isi: p.isi })),
+    ...pesan.map((p) => ({ judul: `Pesan Dosen PA (${tanggal(p.tanggal)})`, isi: p.isi })),
   ];
 
   return (

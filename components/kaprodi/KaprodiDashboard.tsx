@@ -16,7 +16,7 @@ function Bar({ label, value, total, color }: { label: string; value: number; tot
 
 const LEVEL = { High: "high", Medium: "medium", Low: "low" } as const;
 
-export default function KaprodiDashboard({ judul = "Dashboard Program Studi" }: { judul?: string }) {
+export default function KaprodiDashboard({ judul = "Dashboard Prodi" }: { judul?: string }) {
   const [periode, setPeriode] = useState<string | null>(null);
   const q = useKaprodiDashboard(periode);
   const d = q.data;
@@ -64,7 +64,7 @@ export default function KaprodiDashboard({ judul = "Dashboard Program Studi" }: 
               <div className="space-y-4"><Bar label="Rendah" value={r.Low} total={r.total} color="bg-emerald-500" /><Bar label="Sedang" value={r.Medium} total={r.total} color="bg-amber-500" /><Bar label="Tinggi" value={r.High} total={r.total} color="bg-red-500" /></div>
             </Card>
             <Card>
-              <h2 className="text-xl font-extrabold">Penyebab risiko tinggi</h2><p className="mb-5 text-sm text-slate-500">Berapa mahasiswa Tinggi yang terpengaruh tiap faktor (satu mahasiswa bisa lebih dari satu).</p>
+              <h2 className="text-xl font-extrabold">Penyebab risiko tinggi</h2><p className="mb-5 text-sm text-slate-500">Berapa mahasiswa berisiko tinggi yang terpengaruh tiap faktor (satu mahasiswa bisa lebih dari satu).</p>
               {d.penyebab_high.length === 0 ? <Empty>Belum ada mahasiswa risiko tinggi.</Empty> : <div className="space-y-4">{d.penyebab_high.map((p) => <Bar key={p.kode} label={p.nama} value={p.jumlah} total={r.High} color="bg-red-500" />)}</div>}
             </Card>
             <Card>

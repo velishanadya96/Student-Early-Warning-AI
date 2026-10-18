@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import StudentList from "@/components/students/StudentList";
 
 export const metadata: Metadata = {
-  title: "Mahasiswa | Student Early Warning AI",
+  title: "Mahasiswa Bimbingan | Student Early Warning AI",
 };
 
 export default function MahasiswaPage() {

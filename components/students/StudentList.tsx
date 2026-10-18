@@ -24,17 +24,17 @@ export default function StudentList() {
         {q.data && rows.length === 0 && <Empty>Mahasiswa tidak ditemukan.</Empty>}
         {rows.length > 0 && (
           <>
-          <MahasiswaCards rows={rows} extra={(m) => <p className="mt-2.5 text-xs text-slate-500">Orang tua: {m.orang_tua ? `${m.orang_tua.nama}${m.orang_tua.no_wa ? ` · +${m.orang_tua.no_wa}` : " (no WA kosong)"}` : "belum daftar"}</p>} />
+          <MahasiswaCards rows={rows} extra={(m) => <p className="mt-2.5 text-xs text-slate-500">Orang tua: {m.orang_tua ? `${m.orang_tua.nama}${m.orang_tua.no_wa ? ` · +${m.orang_tua.no_wa}` : " (nomor WA belum diisi)"}` : "belum mendaftar"}</p>} />
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[900px] text-left text-sm">
-              <thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">NIM</th><th className="p-3">Nama</th><th className="p-3">Angk.</th><th className="p-3">IPK</th><th className="p-3">Kehadiran</th><th className="p-3">Tugas</th><th className="p-3">Kategori</th><th className="p-3">Penyebab</th><th className="p-3">Orang tua</th></tr></thead>
+              <thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">NIM</th><th className="p-3">Nama</th><th className="p-3">Angkatan</th><th className="p-3">IPK</th><th className="p-3">Kehadiran</th><th className="p-3">Tugas terkumpul</th><th className="p-3">Kategori</th><th className="p-3">Penyebab</th><th className="p-3">Orang tua</th></tr></thead>
               <tbody>
                 {rows.map((m) => (
                   <tr key={m.nim} className="border-b last:border-0 align-top hover:bg-slate-50">
                     <td className="p-3 font-mono">{m.nim}</td><td className="p-3 font-semibold">{m.nama}</td><td className="p-3">{m.angkatan ?? "-"}</td>
                     <td className="p-3">{num(m.ipk)}</td><td className="p-3">{pct(m.fitur.attendance_rate)}</td><td className="p-3">{pct(m.fitur.assignment_submission_rate)}</td>
                     <td className="p-3"><KategoriBadge kategori={m.kategori} /></td><td className="p-3"><FaktorChips faktor={m.faktor} /></td>
-                    <td className="p-3 text-xs">{m.orang_tua ? <>{m.orang_tua.nama}<div className="text-slate-400">{m.orang_tua.no_wa ? `+${m.orang_tua.no_wa}` : "no WA kosong"}</div></> : <span className="text-slate-400">Belum daftar</span>}</td>
+                    <td className="p-3 text-xs">{m.orang_tua ? <>{m.orang_tua.nama}<div className="text-slate-400">{m.orang_tua.no_wa ? `+${m.orang_tua.no_wa}` : "Nomor WA belum diisi"}</div></> : <span className="text-slate-400">Belum mendaftar</span>}</td>
                   </tr>
                 ))}
               </tbody>

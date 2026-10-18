@@ -7,7 +7,7 @@ import { Gauge } from "@/components/ui/Gauge";
 import { useMahasiswaDashboard } from "@/hooks/useData";
 import { Empty, ErrorBox, FaktorList, FiturBars, KategoriBadge, Loading } from "@/components/risk/RiskParts";
 import { LABEL_KATEGORI } from "@/lib/types";
-import { num, pct } from "@/lib/dataApi";
+import { num, pct, tanggal } from "@/lib/dataApi";
 
 const JUDUL = {
   High: ["Kamu perlu", "dampingan."],
@@ -67,7 +67,7 @@ export default function StudentDashboard() {
 
       <Card>
         <div className="mb-3 flex items-center gap-2"><MessageSquare size={18} className="text-blue-600" /><h2 className="text-xl font-extrabold">Pesan dari Dosen PA</h2></div>
-        {pesan.length === 0 ? <Empty>Belum ada pesan.{dosen_pa ? ` Dosen PA-mu: ${dosen_pa.nama}.` : ""}</Empty> : <ul className="space-y-3">{pesan.map((p, i) => <li key={i} className="rounded-2xl bg-slate-50 p-4 text-sm"><span className="text-xs text-slate-400">{p.tanggal}</span><p className="mt-1 text-slate-700">{p.isi}</p></li>)}</ul>}
+        {pesan.length === 0 ? <Empty>Belum ada pesan.{dosen_pa ? ` Dosen PA-mu: ${dosen_pa.nama}.` : ""}</Empty> : <ul className="space-y-3">{pesan.map((p, i) => <li key={i} className="rounded-2xl bg-slate-50 p-4 text-sm"><span className="text-xs text-slate-400">{tanggal(p.tanggal)}</span><p className="mt-1 text-slate-700">{p.isi}</p></li>)}</ul>}
       </Card>
     </section>
   );

@@ -34,7 +34,7 @@ export async function proxyLogin(flaskPath: string, req: Request): Promise<NextR
       cache: "no-store",
     });
   } catch {
-    return NextResponse.json({ code: "BACKEND_MATI", message: "Tidak bisa terhubung ke server backend. Pastikan Flask sudah jalan." }, { status: 502 });
+    return NextResponse.json({ code: "BACKEND_MATI", message: "Tidak bisa terhubung ke server. Coba lagi beberapa saat lagi." }, { status: 502 });
   }
   const json = await upstream.json().catch(() => ({}));
   if (!upstream.ok) return NextResponse.json(json, { status: upstream.status });

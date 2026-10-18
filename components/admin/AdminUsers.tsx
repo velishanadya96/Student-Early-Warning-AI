@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import RosterImport from "@/components/admin/RosterImport";
 import { assignDosenApi, createUserApi, listUsersApi, setActiveApi, type NewUser } from "@/lib/adminApi";
 
-const ROLE_LABEL: Record<string, string> = { admin: "Admin", kaprodi: "Kaprodi", dosen: "Dosen PA", mahasiswa: "Mahasiswa", orangtua: "Orang Tua" };
+const ROLE_LABEL: Record<string, string> = { admin: "Admin", kaprodi: "Kaprodi", dosen: "Dosen PA", mahasiswa: "Mahasiswa", orangtua: "Orang tua" };
 const empty = { role: "mahasiswa", name: "", email: "", password: "", nim: "", nidn: "", no_wa: "" };
 const field = "w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
 
@@ -23,7 +23,7 @@ export default function AdminUsers() {
   const { data: users = [], isLoading, error: loadError } = useQuery({ queryKey: ["admin-users"], queryFn: listUsersApi });
   const dosenList = users.filter((u) => u.role === "dosen" && u.is_active);
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-users"] });
-  const fail = (e: unknown) => { setMessage(""); setError(e instanceof Error ? e.message : "Gagal."); };
+  const fail = (e: unknown) => { setMessage(""); setError(e instanceof Error ? e.message : "Gagal menyimpan. Coba lagi."); };
 
   const create = useMutation({
     mutationFn: (u: NewUser) => createUserApi(u),
@@ -37,7 +37,7 @@ export default function AdminUsers() {
   });
   const assign = useMutation({
     mutationFn: (v: { nim: string; id: number }) => assignDosenApi(v.nim, v.id),
-    onSuccess: () => { setMessage("Dosen PA berhasil ditugaskan."); setError(""); refresh(); },
+    onSuccess: () => { setMessage("Dosen PA berhasil ditetapkan."); setError(""); refresh(); },
     onError: fail,
   });
 
@@ -56,11 +56,11 @@ export default function AdminUsers() {
     <section>
       <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold text-blue-600">Administrator</p>
+          <p className="text-sm font-semibold text-blue-600">Admin</p>
           <h1 className="text-2xl font-bold">Manajemen Pengguna</h1>
-          <p className="mt-1 text-sm text-slate-500">FR-12: tambah akun, ubah status, dan tugaskan Dosen PA. Data tersimpan di database.</p>
+          <p className="mt-1 text-sm text-slate-500">Tambah akun, ubah status, dan tetapkan Dosen PA.</p>
         </div>
-        <Button onClick={() => setOpen((v) => !v)}><UserPlus size={17} className="mr-2" />{open ? "Tutup form" : "Tambah Pengguna"}</Button>
+        <Button onClick={() => setOpen((v) => !v)}><UserPlus size={17} className="mr-2" />{open ? "Tutup form" : "Tambah pengguna"}</Button>
       </div>
 
       {message && <div role="status" className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{message}</div>}
@@ -69,8 +69,8 @@ export default function AdminUsers() {
       {open && (
         <Card>
           <form onSubmit={submit} className="grid gap-3 p-4 sm:grid-cols-2">
-            <label className="text-sm font-semibold text-slate-700">Role
-              <select className={`${field} mt-1`} value={form.role} onChange={set("role")} aria-label="Role">
+            <label className="text-sm font-semibold text-slate-700">Peran
+              <select className={`${field} mt-1`} value={form.role} onChange={set("role")} aria-label="Peran">
                 {Object.entries(ROLE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
             </label>
@@ -82,7 +82,7 @@ export default function AdminUsers() {
             )}
             {form.role === "dosen" && <label className="text-sm font-semibold text-slate-700">NIDN<input className={`${field} mt-1`} value={form.nidn} onChange={set("nidn")} required /></label>}
             {(form.role === "dosen" || form.role === "orangtua") && (
-              <label className="text-sm font-semibold text-slate-700">No WhatsApp<input className={`${field} mt-1`} value={form.no_wa} onChange={set("no_wa")} placeholder="081234567890" inputMode="tel" required /></label>
+              <label className="text-sm font-semibold text-slate-700">Nomor WhatsApp<input className={`${field} mt-1`} value={form.no_wa} onChange={set("no_wa")} placeholder="081234567890" inputMode="tel" required /></label>
             )}
             <div className="sm:col-span-2"><Button type="submit" disabled={create.isPending}>{create.isPending ? "Menyimpan..." : "Simpan akun"}</Button></div>
           </form>
@@ -105,7 +105,7 @@ export default function AdminUsers() {
             <p className="mt-2 text-xs text-slate-500">{ROLE_LABEL[u.role] ?? u.role}{u.no_wa ? ` · ${u.no_wa}` : ""}</p>
             {u.role === "mahasiswa" && u.nim && (
               <select aria-label={`Dosen PA ${u.name}`} className="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" value={u.id_dosen_pa ?? ""} onChange={(e) => e.target.value && assign.mutate({ nim: u.nim!, id: Number(e.target.value) })}>
-                <option value="">Dosen PA: belum ditugaskan</option>
+                <option value="">Dosen PA: belum ditetapkan</option>
                 {dosenList.map((d) => <option key={d.id} value={d.id_dosen_pa ?? ""}>{d.name}</option>)}
               </select>
             )}
@@ -118,7 +118,7 @@ export default function AdminUsers() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="border-b text-xs uppercase text-slate-500">
-              <tr><th className="p-3">Nama</th><th className="p-3">Email</th><th className="p-3">Role</th><th className="p-3">No WA</th><th className="p-3">Dosen PA</th><th className="p-3">Status</th><th className="p-3">Aksi</th></tr>
+              <tr><th className="p-3">Nama</th><th className="p-3">Email</th><th className="p-3">Peran</th><th className="p-3">No. WA</th><th className="p-3">Dosen PA</th><th className="p-3">Status</th><th className="p-3">Aksi</th></tr>
             </thead>
             <tbody>
               {isLoading && <tr><td className="p-3 text-slate-500" colSpan={7}>Memuat data...</td></tr>}
@@ -131,7 +131,7 @@ export default function AdminUsers() {
                   <td className="p-3">
                     {u.role === "mahasiswa" && u.nim ? (
                       <select aria-label={`Dosen PA ${u.name}`} className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs" value={u.id_dosen_pa ?? ""} onChange={(e) => e.target.value && assign.mutate({ nim: u.nim!, id: Number(e.target.value) })}>
-                        <option value="">Belum ditugaskan</option>
+                        <option value="">Belum ditetapkan</option>
                         {dosenList.map((d) => <option key={d.id} value={d.id_dosen_pa ?? ""}>{d.name}</option>)}
                       </select>
                     ) : "-"}
