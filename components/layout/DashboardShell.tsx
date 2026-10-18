@@ -8,9 +8,10 @@ import { clearSession } from "@/lib/authApi";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, key: "dashboard" },
-  { href: "/dashboard/mahasiswa", label: "Mahasiswa", icon: Users, key: "mahasiswa" },
+  { href: "/dashboard/mahasiswa", label: "Mahasiswa Bimbingan", icon: Users, key: "mahasiswa" },
   { href: "/dashboard/risiko", label: "Risk Score", icon: ShieldAlert, key: "risiko" },
   { href: "/dashboard/intervensi", label: "Tindak Lanjut", icon: ClipboardCheck, key: "intervensi" },
+  { href: "/dashboard/notifikasi", label: "Notifikasi WA", icon: Bell, key: "notifikasi" },
   { href: "/dashboard/kontak", label: "Kontak Orang Tua", icon: MessageCircle, key: "kontak" },
 ];
 

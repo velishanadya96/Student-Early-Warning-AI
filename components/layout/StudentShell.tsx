@@ -14,6 +14,7 @@ const navItems = [
   { href: "/dashboard-mahasiswa/profil", label: "Profil Saya", icon: UserRound, key: "profil" },
   { href: "/dashboard-mahasiswa/risiko", label: "Status Risiko", icon: ShieldAlert, key: "student-risiko" },
   { href: "/dashboard-mahasiswa/rekomendasi", label: "Rekomendasi", icon: Lightbulb, key: "rekomendasi" },
+  { href: "/dashboard-mahasiswa/notifikasi", label: "Notifikasi", icon: Bell, key: "notifikasi" },
 ];
 
 export default function StudentShell({ children }: Readonly<{ children: React.ReactNode }>) {

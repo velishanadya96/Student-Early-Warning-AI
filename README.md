@@ -43,7 +43,7 @@ Belum punya akun? Klik **Daftar** di bawah form login (`/register`).
 - Rekomendasi
 
 ## Teknologi
-Next.js App Router, React 19, TypeScript strict, Tailwind CSS v4, CVA, Zod, Zustand, TanStack Query, Middleware, dan mock REST API.
+Next.js App Router, React 19, TypeScript strict, Tailwind CSS v4, CVA, Zod, Zustand, TanStack Query, Middleware. Semua data diambil dari Flask Backend + database lewat proxy `/api/backend` (tanpa mock data).
 
 ## Jalankan
 ```bash
@@ -64,7 +64,7 @@ Project ini sekarang memiliki dashboard multi-role:
 
 Password demo: `123456`
 
-Untuk role Mahasiswa dan Orang Tua, pilih mahasiswa pada form login. Data yang digunakan masih berupa mock data untuk kebutuhan demonstrasi front-end.
+Data berasal dari backend (seed dari `backend/contoh/*.csv`). Admin mengunggah CSV/Excel di menu Data, lalu menekan "Hitung risiko"; mahasiswa berisiko Tinggi memicu notifikasi WhatsApp ke orang tua beserta alasan risikonya. Format CSV: lihat `backend/FORMAT_CSV.md` atau template di `public/templates/`.
 
 > Catatan: role Orang Tua merupakan pengembangan tambahan dari SRS yang ada. SRS versi 1.0 mendefinisikan empat aktor utama: Admin, Dosen PA, Kaprodi, dan Mahasiswa.
 

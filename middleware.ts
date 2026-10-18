@@ -75,7 +75,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*", "/dashboard-admin/:path*", "/dashboard-kaprodi/:path*", "/dashboard-orangtua/:path*", "/dashboard-mahasiswa/:path*",
-    // API data mock bawaan Next: dulu terbuka untuk siapa saja, sekarang wajib login.
-    "/api/students/:path*", "/api/risks/:path*", "/api/interventions/:path*", "/api/student/:path*",
   ],
 };
