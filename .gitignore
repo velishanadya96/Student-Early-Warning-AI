@@ -4,3 +4,9 @@ out
 .env*
 npm-debug.log*
 .DS_Store
+
+venv/
+__pycache__/
+*.pyc
+!.env.example
+sew-be/
