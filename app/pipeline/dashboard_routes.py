@@ -141,7 +141,7 @@ def ortu():
         raise ApiError("TIDAK_DITEMUKAN", "Data mahasiswa yang dipantau tidak ditemukan.", 404)
     skor = skor_terbaru([m.nim]).get(m.nim)
     return jsonify({
-        "mahasiswa": {"nim": m.nim, "nama": m.nama, "prodi": m.prodi, "angkatan": m.angkatan},
+        "mahasiswa": {"nim": m.nim, "nama": m.nama,  "ipk": m.ipk, "prodi": m.prodi, "angkatan": m.angkatan},
         "terbaru": risk.skor_json(skor) if skor else None,
         "riwayat": _riwayat(m.nim),
         "dosen_pa": _dosen_kontak(m),
