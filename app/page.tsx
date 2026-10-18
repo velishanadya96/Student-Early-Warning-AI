@@ -1,77 +1,127 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BellRing, ChartNoAxesCombined, CheckCircle2, GraduationCap, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import type { Metadata } from "next";
+import { ArrowRight, ArrowUpRight, Database, FileBarChart, GraduationCap, HeartHandshake, MessageCircle, UsersRound } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { Radar } from "@/components/ui/Radar";
+import { CountUp, RevealRoot, Ticker } from "@/components/landing/LandingEffects";
+import "@/components/landing/landing.css";
 
-const features = [
-  { icon: ChartNoAxesCombined, title: "Risk Score Terukur", text: "Pantau indikator akademik seperti IPK, presensi, aktivitas LMS, dan pengumpulan tugas." },
-  { icon: UsersRound, title: "Dashboard Multi-Role", text: "Tampilan disesuaikan untuk mahasiswa, Dosen PA, Kaprodi, dan Admin/Staff." },
-  { icon: BellRing, title: "Peringatan Dini", text: "Identifikasi mahasiswa yang membutuhkan perhatian dan tindak lanjut lebih cepat." },
-  { icon: ShieldCheck, title: "Berbasis Data Akademik", text: "Informasi disusun menjadi insight yang lebih mudah dibaca untuk kebutuhan monitoring." },
+export const metadata: Metadata = {
+  title: "Student Early Warning AI | Peringatan dini risiko akademik",
+  description: "Sistem peringatan dini risiko akademik mahasiswa: skor risiko 0 sampai 1 beserta penyebabnya, dan kabar ke orang tua lewat WhatsApp.",
+};
+
+const KATA = ["jarang hadir", "nilainya turun", "tugasnya telat", "IPK-nya anjlok"];
+const MARQUEE = ["IPK", "Presensi", "Aktivitas LMS", "Tugas", "RandomForest", "WhatsApp"];
+
+const ROLES = [
+  { icon: UsersRound, nama: "Dosen PA", teks: "Radar dan daftar prioritas mahasiswa bimbingan, lengkap dengan penyebab risikonya dan tombol kirim WhatsApp ke orang tua.", href: "/login" },
+  { icon: GraduationCap, nama: "Mahasiswa", teks: "Skor risiko, faktor penyebabnya, dan langkah yang bisa dilakukan minggu ini.", href: "/login" },
+  { icon: HeartHandshake, nama: "Orang tua", teks: "Kondisi akademik anak dan pesan peringatan lewat WhatsApp, tanpa menunggu nilai keluar.", href: "/login-ortu" },
+  { icon: FileBarChart, nama: "Kaprodi", teks: "Ringkasan risiko per angkatan, penyebab terbanyak, dan laporan Excel atau PDF untuk prodi.", href: "/login" },
+  { icon: Database, nama: "Admin", teks: "Impor CSV nilai, presensi, dan tugas, hitung ulang risiko, lalu kelola pengguna.", href: "/login" },
 ];
 
-const roles = ["Mahasiswa", "Dosen PA", "Kaprodi", "Admin / Staff"];
+const CSV = [["2024001", "3.64", "96%", "12/12"], ["2024002", "3.12", "88%", "11/12"], ["2024003", "2.31", "62%", "7/12", "bad"], ["2024004", "2.89", "78%", "10/12"], ["2024005", "2.48", "71%", "8/12"]];
+const BARS: [string, number, string][] = [["Kehadiran", 62, "62%"], ["IPK", 58, "2.31"], ["Tugas", 58, "7/12"], ["Aktivitas LMS", 20, "3x"]];
+const RADAR = ["high", "high", "medium", "medium", "low", "low", "low", "medium", "low", "low"] as const;
+
+function Mark() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l3.5 3.5M15.5 15.5 19 19M5 19l3.5-3.5M15.5 8.5 19 5" /></svg>;
+}
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-slate-900">
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-3" aria-label="Student Early Warning AI">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20"><GraduationCap size={22} /></span>
-            <span><span className="block text-sm font-extrabold tracking-tight">Student Early</span><span className="block text-xs font-medium text-slate-500">Warning AI</span></span>
-          </Link>
-          <nav className="hidden items-center gap-7 text-sm font-semibold text-slate-600 md:flex" aria-label="Navigasi landing page">
-            <a href="#fitur" className="hover:text-blue-600">Fitur</a>
-            <a href="#cara-kerja" className="hover:text-blue-600">Cara Kerja</a>
-          </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/login" className="rounded-xl px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100">Masuk</Link>
-            <Link href="/register" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700">Daftar</Link>
+    <main className="lp min-h-screen">
+      <header className="nav">
+        <div className="wrap nav-in">
+          <Link href="/" className="logo" aria-label="Student Early Warning AI"><Mark />Student Early Warning</Link>
+          <nav className="lk" aria-label="Navigasi landing page"><a href="#cara-kerja">Cara kerja</a><a href="#role">Role</a><a href="#mulai">Mulai</a></nav>
+          <div className="rt">
+            <ThemeToggle />
+            <Link href="/login" className="btn btn-g sm">Masuk</Link>
+            <Link href="/register" className="btn btn-p sm">Daftar</Link>
           </div>
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#eff6ff_0%,#ffffff_55%,#eef2ff_100%)]">
-        <div className="pointer-events-none absolute -left-28 top-10 h-72 w-72 rounded-full bg-blue-200/30 blur-3xl" />
-        <div className="pointer-events-none absolute -right-28 bottom-0 h-80 w-80 rounded-full bg-indigo-200/30 blur-3xl" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:py-24">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-3 py-2 text-xs font-bold text-blue-700 shadow-sm"><Sparkles size={14} /> Early insight untuk keputusan akademik</div>
-            <h1 className="max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">Kenali risiko akademik <span className="text-blue-600">sebelum terlambat.</span></h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">Student Early Warning AI membantu perguruan tinggi memantau kondisi akademik mahasiswa, membaca faktor risiko, dan mendorong tindak lanjut yang lebih cepat.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/login" className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-xl shadow-blue-600/20 hover:bg-blue-700">Masuk ke Dashboard <ArrowRight size={18} /></Link>
+      <div className="wrap">
+        <section className="b-hero">
+          <p className="eyebrow">Student Early Warning AI</p>
+          <h1 className="b-h1">
+            <span className="ln"><span style={{ "--i": 0 } as React.CSSProperties}>Mahasiswa yang</span></span>
+            <span className="ln"><span style={{ "--i": 1 } as React.CSSProperties}><Ticker words={KATA} /></span></span>
+            <span className="ln"><span style={{ "--i": 2 } as React.CSSProperties}>terlihat lebih awal.</span></span>
+          </h1>
+          <div className="b-meta">
+            <div>
+              <p className="lead rv">Sistem membaca IPK, presensi, aktivitas LMS, dan tugas, lalu memberi skor risiko 0 sampai 1. Dosen PA dan orang tua dikabari lewat WhatsApp sebelum masalahnya membesar.</p>
+              <div className="cta rv" style={{ "--d": "140ms" } as React.CSSProperties}>
+                <Link href="/register" className="btn btn-p">Mulai sekarang<ArrowRight /></Link>
+                <a href="#cara-kerja" className="btn btn-g">Lihat cara kerjanya</a>
+              </div>
             </div>
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-500">
-              {roles.map((role) => <span key={role} className="inline-flex items-center gap-1.5"><CheckCircle2 size={14} className="text-emerald-500" />{role}</span>)}
+            <div className="b-score inv rv" style={{ "--d": "200ms" } as React.CSSProperties}>
+              <div className="top"><span className="pill">Risiko tinggi</span><small>Contoh: Citra Lestari · NIM 2024003</small></div>
+              <div className="big"><CountUp to={0.82} decimals={2} /></div>
+              <div className="trk" aria-hidden="true"><i style={{ width: "82%" }} /></div>
+              <small>Kehadiran 62% · IPK 2.31 · tugas 7 dari 12</small>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute -inset-5 rounded-[2rem] bg-blue-500/10 blur-2xl" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-white bg-white shadow-2xl shadow-blue-900/10">
-              <Image src="/early-warning-hero.svg" alt="Ilustrasi dashboard Student Early Warning AI" width={1200} height={760} priority className="h-auto w-full" />
+        </section>
+      </div>
+
+      <div className="mq" aria-hidden="true"><div className="mq-t">{[0, 1].map((k) => MARQUEE.map((w) => <span key={`${k}-${w}`}>{w}</span>))}</div></div>
+
+      <div className="wrap">
+        <div className="b-sec-h" id="cara-kerja"><p className="eyebrow">Empat langkah</p><h2 className="rv">Dari file CSV sampai pesan WhatsApp.</h2></div>
+        <div className="b-stack">
+          <article className="sc" style={{ "--k": 0 } as React.CSSProperties}>
+            <div><div className="no" aria-hidden="true">1</div><h3>Impor data</h3><p>Admin mengunggah CSV nilai, presensi, dan tugas. Baris yang bermasalah dilewati dan dicatat di riwayat impor.</p></div>
+            <div className="vis"><div className="vcsv" aria-hidden="true"><div className="hd"><span>NIM</span><span>IPK</span><span>Hadir</span><span>Tugas</span></div>{CSV.map((r, n) => <div key={r[0]} className={`rw ${r[4] ?? ""}`} style={{ "--n": n } as React.CSSProperties}><span>{r[0]}</span><span>{r[1]}</span><span>{r[2]}</span><span>{r[3]}</span></div>)}</div></div>
+          </article>
+          <article className="sc inv" style={{ "--k": 1 } as React.CSSProperties}>
+            <div><div className="no" aria-hidden="true">2</div><h3>Hitung risiko</h3><p>Model RandomForest memberi skor 0 sampai 1 dari empat faktor, lalu menandainya tinggi, sedang, atau rendah.</p></div>
+            <div className="vis" aria-hidden="true">
+              <div className="vg"><svg viewBox="0 0 200 108"><path className="t" pathLength="100" d="M20 100A80 80 0 0 1 180 100" /><path className="v" pathLength="100" d="M20 100A80 80 0 0 1 180 100" /></svg><b>0.82</b></div>
+              <div className="vbars">{BARS.map(([l, p, v]) => <div key={l}><span>{l}</span><span className="tr"><i style={{ "--w": `${p}%` } as React.CSSProperties} /></span><span>{v}</span></div>)}</div>
             </div>
+          </article>
+          <article className="sc" style={{ "--k": 2 } as React.CSSProperties}>
+            <div><div className="no" aria-hidden="true">3</div><h3>Tindak lanjut</h3><p>Dosen PA melihat radar dan daftar prioritas. Mahasiswa berisiko tinggi muncul paling atas.</p></div>
+            <div className="vis" aria-hidden="true"><div className="vlist"><div className="rd"><Radar levels={[...RADAR]} /></div>{[["CL", "Citra Lestari", "0.82"], ["EP", "Eka Pratama", "0.77"]].map(([a, n, s]) => <div key={a} className="it"><span className="av">{a}</span>{n}<em>{s}</em></div>)}</div></div>
+          </article>
+          <article className="sc inv" style={{ "--k": 3 } as React.CSSProperties}>
+            <div><div className="no" aria-hidden="true">4</div><h3>Kabari orang tua</h3><p>Pesan WhatsApp sudah tersusun. Dosen PA tinggal menekan kirim, dengan mode Manual, Fonnte, atau Log.</p></div>
+            <div className="vis" aria-hidden="true"><div className="vwa"><small><i />WhatsApp · Fonnte</small>Peringatan Akademik. Risiko Citra Lestari saat ini TINGGI (skor 0.82). Penyebab utama: kehadiran 62%.<div className="f"><span>14.02</span><span>Terkirim</span></div></div></div>
+          </article>
+        </div>
+
+        <div className="b-stats">
+          <div className="rv"><b><CountUp to={4} /></b><span>faktor risiko</span><small>IPK, presensi, LMS, tugas</small></div>
+          <div className="rv" style={{ "--d": "120ms" } as React.CSSProperties}><b><CountUp to={5} /></b><span>role pengguna</span><small>satu sistem untuk semua</small></div>
+          <div className="rv" style={{ "--d": "240ms" } as React.CSSProperties}><b><CountUp to={3} /></b><span>mode WhatsApp</span><small>Manual, Fonnte, Log</small></div>
+        </div>
+
+        <div className="b-sec-h" id="role"><p className="eyebrow">Untuk siapa</p><h2 className="rv">Lima role, satu tampilan masing-masing.</h2></div>
+        <div className="b-roles">
+          {ROLES.map(({ icon: Icon, nama, teks, href }) => (
+            <Link key={nama} href={href} className="br" aria-label={`Masuk sebagai ${nama}`}>
+              <span className="ico"><Icon /></span><h3>{nama}</h3><p>{teks}</p><span className="go"><ArrowUpRight /></span>
+            </Link>
+          ))}
+        </div>
+
+        <section className="b-cta inv" id="mulai">
+          <h2 className="rv">Mulai dari satu file CSV.</h2>
+          <div className="row">
+            <p className="rv">Unggah data semester ini dan lihat siapa yang butuh perhatian hari ini.</p>
+            <div className="cta rv"><Link href="/register" className="btn btn-p">Daftar sekarang<ArrowRight /></Link><Link href="/login" className="btn btn-g">Masuk</Link></div>
           </div>
-        </div>
-      </section>
-
-      <section id="fitur" className="mx-auto max-w-7xl px-5 py-20 sm:px-8">
-        <div className="max-w-2xl"><p className="text-sm font-extrabold uppercase tracking-widest text-blue-600">Fitur utama</p><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Satu tempat untuk memahami kondisi mahasiswa.</h2><p className="mt-4 text-slate-600">Dibangun dengan pendekatan dashboard yang ringkas supaya informasi penting bisa ditemukan tanpa harus membaca data mentah satu per satu.</p></div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map(({ icon: Icon, title, text }) => <article key={title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600"><Icon size={21} /></div><h3 className="mt-5 font-extrabold">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{text}</p></article>)}
-        </div>
-      </section>
-
-      <section id="cara-kerja" className="mx-auto max-w-7xl px-5 py-20 sm:px-8">
-        <div className="text-center"><p className="text-sm font-extrabold uppercase tracking-widest text-blue-600">Cara kerja</p><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Dari data menjadi early warning.</h2></div>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {[['01','Pantau','Data akademik dan aktivitas pembelajaran dirangkum dalam satu dashboard.'],['02','Identifikasi','Sistem menghitung indikator risiko dan menampilkan faktor yang paling berpengaruh.'],['03','Tindak lanjuti','Dosen PA dan pengelola akademik dapat mencatat tindak lanjut terhadap mahasiswa.']].map(([n,t,d]) => <div key={n} className="rounded-2xl border border-slate-200 p-7"><span className="text-sm font-black text-blue-600">{n}</span><h3 className="mt-4 text-xl font-extrabold">{t}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{d}</p></div>)}
-        </div>
-      </section>
-
-      <section className="bg-slate-950 px-5 py-16 text-white sm:px-8"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 md:flex-row md:items-center"><div><p className="text-sm font-bold text-blue-300">STUDENT EARLY WARNING AI</p><h2 className="mt-2 text-3xl font-black">Siap masuk ke sistem?</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">Gunakan akun sesuai role untuk melihat dashboard dan monitoring akademik.</p></div><Link href="/login" className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-extrabold text-slate-900 hover:bg-blue-50">Masuk sekarang <ArrowRight size={18} /></Link></div></section>
-
-      <footer className="border-t border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-7 text-xs text-slate-500 sm:px-8 sm:flex-row sm:items-center sm:justify-between"><span>© 2026 Student Early Warning AI</span><span>Frontend Engineering • Student Early Warning System</span></div></footer>
+        </section>
+        <footer className="ft"><span>© 2026 Student Early Warning AI</span><span>Proyek D3 Teknik Informatika · Manajemen Proyek</span></footer>
+      </div>
+      <RevealRoot />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 
-const badgeVariants = cva("inline-flex rounded-full px-2.5 py-1 text-xs font-bold", {
+const badgeVariants = cva("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold", {
   variants: {
     variant: {
       low: "bg-emerald-100 text-emerald-700",
@@ -13,5 +13,10 @@ const badgeVariants = cva("inline-flex rounded-full px-2.5 py-1 text-xs font-bol
 });
 
 export function Badge({ variant, children }: VariantProps<typeof badgeVariants> & { children: React.ReactNode }) {
-  return <span className={badgeVariants({ variant })}>{children}</span>;
+  return (
+    <span className={badgeVariants({ variant })}>
+      {variant && variant !== "neutral" && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />}
+      {children}
+    </span>
+  );
 }

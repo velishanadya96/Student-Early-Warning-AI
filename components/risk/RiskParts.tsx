@@ -25,7 +25,7 @@ export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => v
 }
 
 export function Empty({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-xl border border-dashed p-8 text-center text-sm text-slate-500">{children}</div>;
+  return <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">{children}</div>;
 }
 
 /** Daftar penyebab risiko (kehadiran / IPK / nilai / tugas) dalam kalimat yang mudah dibaca. */
@@ -97,12 +97,36 @@ export function PeriodeSelect({ value, options, onChange }: { value: string | nu
 }
 
 export function Stat({ icon: Icon, label, value, tone = "default", hint }: { icon: typeof AlertTriangle; label: string; value: React.ReactNode; tone?: "default" | "blue" | "red"; hint?: string }) {
-  const color = tone === "red" ? "text-red-600" : "text-blue-600";
-  const bg = tone === "red" ? "border-red-100 bg-red-50/40" : tone === "blue" ? "border-blue-100 bg-blue-50/40" : "";
   return (
-    <div className={`card p-5 ${bg}`}>
-      <div className="flex items-center justify-between"><div><p className="text-sm text-slate-500">{label}</p><p className="mt-2 text-3xl font-bold">{value}</p></div><Icon className={color} size={28} /></div>
-      {hint && <p className="mt-3 text-xs text-slate-400">{hint}</p>}
+    <div className="card p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-semibold text-slate-500">{label}</p>
+        <Icon className="shrink-0 text-slate-400" size={18} aria-hidden="true" />
+      </div>
+      <p className="mt-3 text-4xl font-extrabold leading-none tracking-tight" style={tone === "red" ? { color: "var(--risk-high)" } : undefined}>{value}</p>
+      {hint && <p className="mt-3 text-xs text-slate-500">{hint}</p>}
+    </div>
+  );
+}
+
+/** Lingkaran inisial nama; merah bila risiko tinggi. */
+export function Avatar({ nama, high = false }: { nama: string; high?: boolean }) {
+  const ini = nama.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  return (
+    <span aria-hidden="true" className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-extrabold ${high ? "bg-white text-red-600 ring-[1.5px] ring-red-600" : "bg-slate-800 text-white"}`}>{ini}</span>
+  );
+}
+
+/** Cincin persentase (mis. porsi mahasiswa risiko rendah). */
+export function Ring({ persen, size = 96, label }: { persen: number; size?: number; label?: string }) {
+  const r = 40, c = 2 * Math.PI * r, v = Math.min(100, Math.max(0, persen));
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={label ?? `${Math.round(v)} persen`}>
+      <svg viewBox="0 0 100 100" className="-rotate-90">
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--ring-track)" strokeWidth="11" />
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--accent)" strokeWidth="11" strokeLinecap="round" strokeDasharray={`${(c * v) / 100} ${c}`} />
+      </svg>
+      <span className="absolute inset-0 grid place-items-center text-lg font-extrabold">{Math.round(v)}%</span>
     </div>
   );
 }

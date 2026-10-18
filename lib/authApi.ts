@@ -135,3 +135,6 @@ export const kontakDosenPaApi = () => authedGet<KontakDosenPa>("/kontak/dosen-pa
 export function waLink(no: string | null | undefined, text?: string): string | null {
   return no ? `https://wa.me/${no}${text ? `?text=${encodeURIComponent(text)}` : ""}` : null;
 }
+
+// GET /auth/me - data akun yang sedang masuk (nama, email, no WhatsApp, role)
+export const meApi = () => authedGet<ApiUser>("/auth/me");

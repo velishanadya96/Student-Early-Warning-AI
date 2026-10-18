@@ -46,7 +46,7 @@ export default function RegisterOrtuForm() {
     }
   }
 
-  const field = "w-full rounded-xl border border-slate-200 py-3.5 pl-10 pr-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+  const field = "field";
   const label = "mb-2 block text-sm font-bold text-slate-700";
 
   if (success) {
@@ -68,26 +68,26 @@ export default function RegisterOrtuForm() {
   return (
     <form onSubmit={submit} className="mx-auto max-w-md">
       <label htmlFor="ro-name" className={label}>Nama lengkap orang tua</label>
-      <div className="relative mb-4"><UserRound className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-name" value={f.name} onChange={set("name")} className={field} autoComplete="name" required /></div>
+      <div className="relative mb-4"><UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-name" value={f.name} onChange={set("name")} className={field} autoComplete="name" required /></div>
 
       <label htmlFor="ro-email" className={label}>Email orang tua</label>
-      <div className="relative mb-4"><Mail className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-email" type="email" value={f.email} onChange={set("email")} className={field} placeholder="nama@gmail.com" autoComplete="email" required /></div>
+      <div className="relative mb-4"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-email" type="email" value={f.email} onChange={set("email")} className={field} placeholder="nama@gmail.com" autoComplete="email" required /></div>
 
       <label htmlFor="ro-wa" className={label}>No WhatsApp (untuk notifikasi)</label>
-      <div className="relative mb-4"><Phone className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-wa" value={f.no_wa} onChange={set("no_wa")} className={field} placeholder="081234567890" inputMode="tel" required /></div>
+      <div className="relative mb-4"><Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-wa" value={f.no_wa} onChange={set("no_wa")} className={field} placeholder="081234567890" inputMode="tel" required /></div>
 
       <label htmlFor="ro-pass" className={label}>Password (min. 8 karakter)</label>
-      <div className="relative mb-4"><Lock className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-pass" type={show ? "text" : "password"} value={f.password} onChange={set("password")} className={`${field} pr-11`} minLength={8} autoComplete="new-password" required /><button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-3.5 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>{show ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
+      <div className="relative mb-4"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-pass" type={show ? "text" : "password"} value={f.password} onChange={set("password")} className={`${field} pr-11`} minLength={8} autoComplete="new-password" required /><button type="button" onClick={() => setShow(!show)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>{show ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
 
       <label htmlFor="ro-conf" className={label}>Konfirmasi password</label>
-      <div className="relative mb-6"><Lock className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-conf" type={show ? "text" : "password"} value={f.confirmation} onChange={set("confirmation")} className={field} minLength={8} autoComplete="new-password" required /></div>
+      <div className="relative mb-6"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-conf" type={show ? "text" : "password"} value={f.confirmation} onChange={set("confirmation")} className={field} minLength={8} autoComplete="new-password" required /></div>
 
       <p className="mb-3 border-t border-slate-100 pt-4 text-xs text-slate-400">Verifikasi anak: NIM dan email harus cocok dengan data mahasiswa di sistem. Satu mahasiswa hanya bisa punya satu akun orang tua.</p>
       <label htmlFor="ro-nim" className={label}>NIM mahasiswa (anak)</label>
-      <div className="relative mb-4"><UserRound className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-nim" value={f.nim} onChange={set("nim")} className={field} placeholder="2024001" inputMode="numeric" required /></div>
+      <div className="relative mb-4"><UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-nim" value={f.nim} onChange={set("nim")} className={field} placeholder="2024001" inputMode="numeric" required /></div>
 
       <label htmlFor="ro-em" className={label}>Email mahasiswa (anak)</label>
-      <div className="relative mb-6"><Mail className="absolute left-3 top-3.5 text-slate-400" size={18} /><input id="ro-em" type="email" value={f.email_mahasiswa} onChange={set("email_mahasiswa")} className={field} placeholder="nama@student.uns.ac.id" required /></div>
+      <div className="relative mb-6"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="ro-em" type="email" value={f.email_mahasiswa} onChange={set("email_mahasiswa")} className={field} placeholder="nama@student.uns.ac.id" required /></div>
 
       {error && <div role="alert" className="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm font-medium text-red-700">{error}</div>}
       <Button type="submit" size="lg" className="w-full" disabled={submitting}>{submitting ? "Memproses..." : "Daftar sebagai Orang Tua"}</Button>

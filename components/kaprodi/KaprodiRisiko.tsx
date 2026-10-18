@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { useKaprodiDashboard } from "@/hooks/useData";
+import { MahasiswaCards } from "@/components/risk/MahasiswaCards";
 import { Empty, ErrorBox, FaktorChips, KategoriBadge, Loading } from "@/components/risk/RiskParts";
 import { num, pct } from "@/lib/dataApi";
 
@@ -15,13 +16,16 @@ export default function KaprodiRisiko() {
         {q.isError && <ErrorBox error={q.error} onRetry={() => q.refetch()} />}
         {q.data && q.data.mahasiswa.length === 0 && <Empty>Belum ada data.</Empty>}
         {q.data && q.data.mahasiswa.length > 0 && (
-          <div className="overflow-x-auto"><table className="w-full min-w-[860px] text-left text-sm">
+          <>
+          <MahasiswaCards rows={q.data.mahasiswa} extra={(m) => <p className="mt-2.5 text-xs text-slate-500">Dosen PA: {m.dosen_pa ?? "-"}</p>} />
+          <div className="hidden overflow-x-auto md:block"><table className="w-full min-w-[860px] text-left text-sm">
             <thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">Mahasiswa</th><th className="p-3">Dosen PA</th><th className="p-3">IPK</th><th className="p-3">Kehadiran</th><th className="p-3">Tugas</th><th className="p-3">Skor</th><th className="p-3">Kategori</th><th className="p-3">Penyebab</th></tr></thead>
             <tbody>{q.data.mahasiswa.map((m) => (
               <tr key={m.nim} className="border-b last:border-0 align-top"><td className="p-3 font-semibold">{m.nama}<div className="text-xs font-normal text-slate-400">{m.nim}</div></td><td className="p-3">{m.dosen_pa ?? <span className="text-slate-400">-</span>}</td>
                 <td className="p-3">{num(m.fitur.GPA)}</td><td className="p-3">{pct(m.fitur.attendance_rate)}</td><td className="p-3">{pct(m.fitur.assignment_submission_rate)}</td>
                 <td className="p-3 font-bold">{m.skor === null ? "-" : m.skor.toFixed(2)}</td><td className="p-3"><KategoriBadge kategori={m.kategori} /></td><td className="p-3"><FaktorChips faktor={m.faktor} /></td></tr>))}</tbody>
           </table></div>
+          </>
         )}
       </Card>
     </section>
