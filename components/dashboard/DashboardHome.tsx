@@ -11,7 +11,7 @@ import { useDosenDashboard } from "@/hooks/useData";
 import { MahasiswaCards } from "@/components/risk/MahasiswaCards";
 import { Avatar, Empty, ErrorBox, FaktorChips, KategoriBadge, Loading, PeriodeSelect, Ring } from "@/components/risk/RiskParts";
 
-const waStatus = { pending: ["Menunggu dikirim", "medium"], terkirim: ["Terkirim", "low"], gagal: ["Gagal", "high"] } as const;
+const waStatus = { pending: ["Menunggu dikirim", "medium"], terkirim: ["Terkirim", "low"], gagal: ["Gagal terkirim", "high"] } as const;
 const LEVEL = { High: "high", Medium: "medium", Low: "low" } as const;
 
 export default function DashboardHome() {
@@ -42,7 +42,7 @@ export default function DashboardHome() {
               className="lg:col-span-8 lg:row-span-2"
               eyebrow={`${r.total} mahasiswa bimbingan`}
               title={r.High > 0 ? `${r.High} mahasiswa perlu` : "Semua mahasiswa"}
-              accent={r.High > 0 ? "perhatian." : "terpantau aman."}
+              accent={r.High > 0 ? "perhatian." : "berisiko rendah."}
               action={{ href: "/dashboard/mahasiswa", label: "Lihat daftar" }}
               visual={<Radar levels={levels} />}
             >
@@ -53,7 +53,7 @@ export default function DashboardHome() {
               <Ring persen={persenAman} label={`${Math.round(persenAman)} persen mahasiswa risiko rendah`} />
               <div>
                 <p className="text-sm font-semibold text-slate-500">Risiko rendah</p>
-                <p className="text-3xl font-extrabold tracking-tight">{r.Low} aman</p>
+                <p className="text-3xl font-extrabold tracking-tight">{r.Low} mahasiswa</p>
                 <p className="text-sm text-slate-500">{r.Medium} sedang, {r.High} tinggi</p>
               </div>
             </div>
@@ -85,10 +85,10 @@ export default function DashboardHome() {
             </div>
             {d.mahasiswa.length === 0 ? <Empty>Belum ada mahasiswa bimbingan. Admin perlu mengimpor data dan menetapkan Dosen PA.</Empty> : (
               <>
-              <MahasiswaCards rows={d.mahasiswa} extra={(m) => (m.kategori === "High" ? <p className="mt-2.5 text-xs text-slate-500">{m.wa ? <Badge variant={waStatus[m.wa.status][1]}>WA {waStatus[m.wa.status][0]}</Badge> : m.orang_tua ? "Nomor WA orang tua belum diisi" : "Orang tua belum daftar"}</p> : null)} />
+              <MahasiswaCards rows={d.mahasiswa} extra={(m) => (m.kategori === "High" ? <p className="mt-2.5 text-xs text-slate-500">{m.wa ? <Badge variant={waStatus[m.wa.status][1]}>WA {waStatus[m.wa.status][0]}</Badge> : m.orang_tua ? "Nomor WA orang tua belum diisi" : "Orang tua belum mendaftar"}</p> : null)} />
               <div className="hidden overflow-x-auto md:block">
                 <table className="w-full min-w-[760px] text-left text-sm">
-                  <thead className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500"><tr><th className="p-3 font-bold">Mahasiswa</th><th className="p-3 font-bold">Skor</th><th className="p-3 font-bold">Kategori</th><th className="p-3 font-bold">Penyebab</th><th className="p-3 font-bold">WA Orang Tua</th></tr></thead>
+                  <thead className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500"><tr><th className="p-3 font-bold">Mahasiswa</th><th className="p-3 font-bold">Skor</th><th className="p-3 font-bold">Kategori</th><th className="p-3 font-bold">Penyebab</th><th className="p-3 font-bold">WA orang tua</th></tr></thead>
                   <tbody>
                     {d.mahasiswa.map((m) => (
                       <tr key={m.nim} className={`border-b border-slate-100 align-middle last:border-0 ${m.kategori === "High" ? "bg-red-50/50" : ""}`}>
@@ -96,7 +96,7 @@ export default function DashboardHome() {
                         <td className="p-3 font-bold">{m.skor === null ? "-" : m.skor.toFixed(2)}</td>
                         <td className="p-3"><KategoriBadge kategori={m.kategori} /></td>
                         <td className="p-3"><FaktorChips faktor={m.faktor} /></td>
-                        <td className="p-3">{m.kategori !== "High" ? <span className="text-slate-400">-</span> : m.wa ? <Badge variant={waStatus[m.wa.status][1]}>{waStatus[m.wa.status][0]}</Badge> : <span className="text-xs text-slate-500">{m.orang_tua ? "Nomor WA belum diisi" : "Orang tua belum daftar"}</span>}</td>
+                        <td className="p-3">{m.kategori !== "High" ? <span className="text-slate-400">-</span> : m.wa ? <Badge variant={waStatus[m.wa.status][1]}>{waStatus[m.wa.status][0]}</Badge> : <span className="text-xs text-slate-500">{m.orang_tua ? "Nomor WA belum diisi" : "Orang tua belum mendaftar"}</span>}</td>
                       </tr>
                     ))}
                   </tbody>

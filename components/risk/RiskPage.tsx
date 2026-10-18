@@ -25,7 +25,7 @@ export default function RiskPage() {
 
   return (
     <section>
-      <div className="mb-6"><h1 className="text-2xl font-bold">Risk Score</h1><p className="mt-1 text-sm text-slate-500">Hasil model Random Forest dari IPK, rata-rata nilai, kehadiran, dan pengumpulan tugas, beserta alasannya.</p></div>
+      <div className="mb-6"><h1 className="text-2xl font-bold">Skor Risiko</h1><p className="mt-1 text-sm text-slate-500">Hasil model Random Forest dari IPK, rata-rata nilai, kehadiran, dan pengumpulan tugas, beserta penyebabnya.</p></div>
       <Card>
         <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter kategori risiko">
@@ -34,7 +34,7 @@ export default function RiskPage() {
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => unduh("xlsx")} disabled={busy !== null}><FileSpreadsheet size={15} className="mr-1.5" />{busy === "xlsx" ? "Menyiapkan..." : "Excel"}</Button>
             <Button size="sm" variant="secondary" onClick={() => unduh("pdf")} disabled={busy !== null}><Download size={15} className="mr-1.5" />{busy === "pdf" ? "Menyiapkan..." : "PDF"}</Button>
-            <Button size="sm" variant="secondary" onClick={() => q.refetch()}>Refresh</Button>
+            <Button size="sm" variant="secondary" onClick={() => q.refetch()}>Muat ulang</Button>
           </div>
         </div>
         {errUnduh && <div role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{errUnduh}</div>}
@@ -46,9 +46,9 @@ export default function RiskPage() {
             <article key={m.nim} className="rounded-xl border p-4">
               <div className="flex items-start justify-between gap-3">
                 <div><h2 className="font-bold">{m.nama}</h2><p className="text-xs text-slate-400">{m.nim} · periode {m.periode}</p></div>
-                <div className="text-right"><p className="text-xs text-slate-400">Peluang risiko tinggi</p><p className="text-xl font-bold">{m.skor === null ? "-" : `${Math.round(m.skor * 100)}%`}</p><KategoriBadge kategori={m.kategori} /></div>
+                <div className="text-right"><p className="text-xs text-slate-400">Skor risiko</p><p className="text-xl font-bold">{m.skor === null ? "-" : m.skor.toFixed(2)}</p><KategoriBadge kategori={m.kategori} /></div>
               </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2"><div><p className="mb-2 text-xs font-bold uppercase text-slate-400">Indikator</p><FiturBars fitur={m.fitur} faktor={m.faktor} /></div><div><p className="mb-2 text-xs font-bold uppercase text-slate-400">Penyebab</p><FaktorList faktor={m.faktor} kosong="Tidak ada penyebab menonjol." /></div></div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2"><div><p className="mb-2 text-xs font-bold uppercase text-slate-400">Indikator</p><FiturBars fitur={m.fitur} faktor={m.faktor} /></div><div><p className="mb-2 text-xs font-bold uppercase text-slate-400">Penyebab</p><FaktorList faktor={m.faktor} kosong="Tidak ada penyebab yang menonjol." /></div></div>
             </article>
           ))}
         </div>

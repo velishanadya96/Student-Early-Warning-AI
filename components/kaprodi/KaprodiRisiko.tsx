@@ -10,7 +10,7 @@ export default function KaprodiRisiko() {
   const q = useKaprodiDashboard();
   return (
     <section>
-      <div className="mb-6"><p className="text-sm font-semibold text-blue-600">Kaprodi</p><h1 className="text-2xl font-bold">Daftar Risiko Mahasiswa</h1><p className="mt-1 text-sm text-slate-500">Seluruh mahasiswa, risiko tertinggi di atas, dengan penyebabnya.</p></div>
+      <div className="mb-6"><p className="text-sm font-semibold text-blue-600">Kaprodi</p><h1 className="text-2xl font-bold">Daftar Risiko</h1><p className="mt-1 text-sm text-slate-500">Seluruh mahasiswa, risiko tertinggi di atas, dengan penyebabnya.</p></div>
       <Card>
         {q.isLoading && <Loading rows={5} />}
         {q.isError && <ErrorBox error={q.error} onRetry={() => q.refetch()} />}
@@ -19,7 +19,7 @@ export default function KaprodiRisiko() {
           <>
           <MahasiswaCards rows={q.data.mahasiswa} extra={(m) => <p className="mt-2.5 text-xs text-slate-500">Dosen PA: {m.dosen_pa ?? "-"}</p>} />
           <div className="hidden overflow-x-auto md:block"><table className="w-full min-w-[860px] text-left text-sm">
-            <thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">Mahasiswa</th><th className="p-3">Dosen PA</th><th className="p-3">IPK</th><th className="p-3">Kehadiran</th><th className="p-3">Tugas</th><th className="p-3">Skor</th><th className="p-3">Kategori</th><th className="p-3">Penyebab</th></tr></thead>
+            <thead className="border-b text-xs uppercase text-slate-500"><tr><th className="p-3">Mahasiswa</th><th className="p-3">Dosen PA</th><th className="p-3">IPK</th><th className="p-3">Kehadiran</th><th className="p-3">Tugas terkumpul</th><th className="p-3">Skor</th><th className="p-3">Kategori</th><th className="p-3">Penyebab</th></tr></thead>
             <tbody>{q.data.mahasiswa.map((m) => (
               <tr key={m.nim} className="border-b last:border-0 align-top"><td className="p-3 font-semibold">{m.nama}<div className="text-xs font-normal text-slate-400">{m.nim}</div></td><td className="p-3">{m.dosen_pa ?? <span className="text-slate-400">-</span>}</td>
                 <td className="p-3">{num(m.fitur.GPA)}</td><td className="p-3">{pct(m.fitur.attendance_rate)}</td><td className="p-3">{pct(m.fitur.assignment_submission_rate)}</td>

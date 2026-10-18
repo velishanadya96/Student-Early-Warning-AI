@@ -24,7 +24,7 @@ export default function InterventionForm({ mahasiswa, nim, onNim }: { mahasiswa:
 
   return (
     <form onSubmit={submit} className="rounded-2xl border bg-slate-50 p-5">
-      <h2 className="font-bold">Tambah Catatan Tindak Lanjut</h2>
+      <h2 className="font-bold">Tambah catatan tindak lanjut</h2>
       <p className="mt-1 text-sm text-slate-500">Catatan tersimpan untuk skor risiko terbaru mahasiswa.</p>
       {message && <div role={message.ok ? "status" : "alert"} className={`mt-4 rounded-xl p-3 text-sm ${message.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{message.text}</div>}
       <div className="mt-4 grid gap-4">
@@ -42,7 +42,7 @@ export default function InterventionForm({ mahasiswa, nim, onNim }: { mahasiswa:
           <label htmlFor="pesan" className="mb-2 block text-sm font-semibold">Pesan untuk mahasiswa (opsional)</label>
           <textarea id="pesan" value={pesan} onChange={(e) => setPesan(e.target.value)} rows={2} placeholder="Tampil di dashboard dan notifikasi mahasiswa." className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none focus:border-blue-500" />
         </div>
-        <Button type="submit" disabled={mutation.isPending || !nim}>{mutation.isPending ? "Menyimpan..." : "Simpan Catatan"}</Button>
+        <Button type="submit" disabled={mutation.isPending || !nim}>{mutation.isPending ? "Menyimpan..." : "Simpan catatan"}</Button>
       </div>
     </form>
   );

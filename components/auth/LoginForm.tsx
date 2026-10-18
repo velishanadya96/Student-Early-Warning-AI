@@ -49,7 +49,7 @@ export default function LoginForm() {
     } catch (e) {
       setLoading(false);
       if (e instanceof ApiError && e.code === "GOOGLE_BELUM_TERDAFTAR") return setNotRegistered(true);
-      setError(e instanceof Error ? e.message : "Login Google gagal.");
+      setError(e instanceof Error ? e.message : "Gagal masuk dengan Google. Coba lagi.");
     }
   }
 
@@ -59,7 +59,7 @@ export default function LoginForm() {
     setUnverified(false);
     setNotRegistered(false);
     const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || password.length < 6) return setError("Email dan password wajib diisi. Password minimal 6 karakter.");
+    if (!normalizedEmail || !password) return setError("Email dan password wajib diisi.");
 
     setLoading(true);
     try {
@@ -67,7 +67,7 @@ export default function LoginForm() {
     } catch (e) {
       setLoading(false);
       if (e instanceof ApiError && e.code === "EMAIL_BELUM_TERVERIFIKASI") return setUnverified(true);
-      setError(e instanceof Error ? e.message : "Login gagal.");
+      setError(e instanceof Error ? e.message : "Gagal masuk. Coba lagi.");
     }
   }
 
@@ -82,10 +82,10 @@ export default function LoginForm() {
       )}
 
       <label htmlFor="email" className="mb-2 block text-sm font-bold text-slate-700">Email</label>
-      <div className="relative mb-4"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" className="field" placeholder="nama@student.uns.ac.id" required /></div>
+      <div className="relative mb-4"><Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" className="field" placeholder="nama@gmail.com" required /></div>
 
       <label htmlFor="password" className="mb-2 block text-sm font-bold text-slate-700">Password</label>
-      <div className="relative mb-6"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="password" type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className="field pr-12" minLength={6} required /><button type="button" onClick={() => setShow(!show)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>{show ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
+      <div className="relative mb-6"><Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="password" type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className="field pr-12" required /><button type="button" onClick={() => setShow(!show)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>{show ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
 
       <Button type="submit" size="lg" className="w-full" disabled={loading}><UserRound size={18} className="mr-2" />{loading ? "Memproses..." : "Masuk"}</Button>
       {config?.google_enabled && config.google_client_id && (

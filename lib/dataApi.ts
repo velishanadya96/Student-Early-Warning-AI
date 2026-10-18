@@ -25,7 +25,7 @@ async function send(method: string, path: string, body?: unknown): Promise<Respo
       cache: "no-store",
     });
   } catch {
-    throw new ApiError("Tidak bisa terhubung ke server. Pastikan backend Flask sudah jalan.", 0);
+    throw new ApiError("Tidak bisa terhubung ke server. Coba lagi beberapa saat lagi.", 0);
   }
 }
 
@@ -98,4 +98,9 @@ export function periodeSekarang(d = new Date()): string {
 }
 
 export const pct = (v: number | null | undefined) => (v === null || v === undefined ? "-" : `${Math.round(v * 100)}%`);
+/** Tanggal "2026-10-18" dari backend -> "18 Okt 2026" (format yang sama dengan notifikasi). */
+export const tanggal = (s: string) => {
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString("id-ID", { dateStyle: "medium", timeZone: "UTC" });
+};
 export const num = (v: number | null | undefined, d = 2) => (v === null || v === undefined ? "-" : v.toFixed(d));

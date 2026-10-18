@@ -26,8 +26,8 @@ export default function LoginOrtuForm() {
     setUnverified(false);
     const cleanNim = nim.trim();
     const cleanEmail = email.trim().toLowerCase();
-    if (!cleanNim || !cleanEmail || password.length < 6) {
-      return setError("NIM, email mahasiswa, dan password wajib diisi. Password minimal 6 karakter.");
+    if (!cleanNim || !cleanEmail || !password) {
+      return setError("NIM, email mahasiswa, dan password wajib diisi.");
     }
 
     setLoading(true);
@@ -37,7 +37,7 @@ export default function LoginOrtuForm() {
       router.push("/dashboard-orangtua");
     } catch (e) {
       if (e instanceof ApiError && e.code === "EMAIL_BELUM_TERVERIFIKASI") setUnverified(true);
-      else setError(e instanceof Error ? e.message : "Login gagal. Coba lagi.");
+      else setError(e instanceof Error ? e.message : "Gagal masuk. Coba lagi.");
       setLoading(false);
     }
   }
@@ -51,7 +51,7 @@ export default function LoginOrtuForm() {
         NIM mahasiswa (anak)
         <div className="relative mt-1">
           <UserRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input className={input} value={nim} onChange={(e) => setNim(e.target.value)} placeholder="2024001" inputMode="numeric" />
+          <input className={input} value={nim} onChange={(e) => setNim(e.target.value)} placeholder="V3924001" />
         </div>
       </label>
 
@@ -59,7 +59,7 @@ export default function LoginOrtuForm() {
         Email mahasiswa (anak)
         <div className="relative mt-1">
           <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input className={input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@student.uns.ac.id" />
+          <input className={input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@gmail.com" />
         </div>
       </label>
 
@@ -68,7 +68,7 @@ export default function LoginOrtuForm() {
         <div className="relative mt-1">
           <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input className={`${input} pr-12`} type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button type="button" onClick={() => setShow((v) => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label="Tampilkan password">
+          <button type="button" onClick={() => setShow((v) => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label={show ? "Sembunyikan password" : "Tampilkan password"}>
             {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
@@ -78,7 +78,7 @@ export default function LoginOrtuForm() {
       {unverified && <ResendVerification email={email.trim().toLowerCase()} nim={nim.trim()} />}
 
       <Button type="submit" size="lg" className="w-full" disabled={loading}>
-        {loading ? "Memproses..." : "Masuk sebagai Orang Tua"}
+        {loading ? "Memproses..." : "Masuk sebagai orang tua"}
       </Button>
 
       <p className="text-center text-sm text-slate-500">

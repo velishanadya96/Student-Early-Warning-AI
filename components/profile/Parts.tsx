@@ -17,7 +17,7 @@ export function IdentityCard({ data, tag }: { data: MahasiswaDashboard; tag: str
     ["Program studi", m.prodi ?? "-"],
     ["Angkatan", m.angkatan ? String(m.angkatan) : "-"],
     ["IPK", ipk === null ? "-" : `${num(ipk)} / 4.00`],
-    ["Dosen PA", dosen_pa?.nama ?? "Belum ditentukan"],
+    ["Dosen PA", dosen_pa?.nama ?? "Belum ditetapkan"],
   ];
   return (
     <section className="idc" aria-label={tag}>

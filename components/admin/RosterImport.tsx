@@ -23,7 +23,7 @@ export default function RosterImport() {
   const imp = useMutation({
     mutationFn: (rows: RosterRow[]) => importRosterApi(rows),
     onSuccess: (r) => { setMsg(`Selesai: ${r.added} baru, ${r.updated} diperbarui. Total ${r.total} mahasiswa.`); setErr(""); setText(""); qc.invalidateQueries({ queryKey: ["roster-count"] }); },
-    onError: (e) => { setMsg(""); setErr(e instanceof Error ? e.message : "Gagal impor."); },
+    onError: (e) => { setMsg(""); setErr(e instanceof Error ? e.message : "Gagal mengimpor roster. Coba lagi."); },
   });
   const rows = parse(text);
 
@@ -31,14 +31,14 @@ export default function RosterImport() {
     <Card>
       <div className="space-y-3 p-4">
         <div>
-          <h2 className="font-bold">Daftar Mahasiswa Resmi (Roster)</h2>
+          <h2 className="font-bold">Daftar mahasiswa resmi (roster)</h2>
           <p className="text-sm text-slate-500">
             Tempel data dari prodi (CSV: <code>nim,nama,prodi,angkatan,email</code>). Kalau roster terisi, mahasiswa hanya bisa daftar dengan NIM yang ada di sini dan email Google yang cocok. Saat ini: <b>{data?.total ?? 0}</b> mahasiswa.
           </p>
         </div>
         {msg && <div role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{msg}</div>}
         {err && <div role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{err}</div>}
-        <textarea aria-label="Data roster CSV" rows={5} value={text} onChange={(e) => setText(e.target.value)} placeholder={"nim,nama,prodi,angkatan,email\nI0722001,Budi Santoso,D3 Teknik Informatika,2022,budi@gmail.com"} className="w-full rounded-xl border border-slate-200 p-3 font-mono text-xs outline-none focus:border-blue-500" />
+        <textarea aria-label="Data roster CSV" rows={5} value={text} onChange={(e) => setText(e.target.value)} placeholder={"nim,nama,prodi,angkatan,email\nV3922001,Budi Santoso,D3 Teknik Informatika,2022,budi@gmail.com"} className="w-full rounded-xl border border-slate-200 p-3 font-mono text-xs outline-none focus:border-blue-500" />
         <Button disabled={!rows.length || imp.isPending} onClick={() => imp.mutate(rows)}>{imp.isPending ? "Mengimpor..." : `Impor ${rows.length} baris`}</Button>
       </div>
     </Card>

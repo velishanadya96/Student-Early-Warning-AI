@@ -21,9 +21,9 @@ const CONFIG: Record<ShellRole, { label: string; home: string; nav: NavItem[] }>
     nav: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tab: "Beranda" },
       { href: "/dashboard/mahasiswa", label: "Mahasiswa Bimbingan", icon: Users, tab: "Mahasiswa" },
-      { href: "/dashboard/risiko", label: "Risk Score", icon: ShieldAlert },
+      { href: "/dashboard/risiko", label: "Skor Risiko", icon: ShieldAlert },
       { href: "/dashboard/intervensi", label: "Tindak Lanjut", icon: ClipboardCheck },
-      { href: "/dashboard/notifikasi", label: "Notifikasi WA", icon: Bell, tab: "Notifikasi" },
+      { href: "/dashboard/notifikasi", label: "Notifikasi WhatsApp", icon: Bell, tab: "Notifikasi" },
       { href: "/dashboard/kontak", label: "Kontak Orang Tua", icon: MessageCircle },
     ],
   },
@@ -39,11 +39,11 @@ const CONFIG: Record<ShellRole, { label: string; home: string; nav: NavItem[] }>
     ],
   },
   orangtua: {
-    label: "Orang Tua", home: "/dashboard-orangtua",
+    label: "Orang tua", home: "/dashboard-orangtua",
     nav: [
       { href: "/dashboard-orangtua", label: "Dashboard Anak", icon: LayoutDashboard, tab: "Beranda" },
       { href: "/dashboard-orangtua/risiko", label: "Status Risiko", icon: ShieldAlert, tab: "Risiko" },
-      { href: "/dashboard-orangtua/notifikasi", label: "Notifikasi", icon: Bell, tab: "Pesan" },
+      { href: "/dashboard-orangtua/notifikasi", label: "Notifikasi", icon: Bell, tab: "Notifikasi" },
       { href: "/dashboard-orangtua/kontak", label: "Kontak Dosen PA", icon: MessageCircle },
       { href: "/dashboard-orangtua/profil", label: "Profil", icon: UserRound, tab: "Profil" },
       { href: "/dashboard-orangtua/pengaturan", label: "Pengaturan Akun", icon: Settings },
@@ -52,16 +52,16 @@ const CONFIG: Record<ShellRole, { label: string; home: string; nav: NavItem[] }>
   kaprodi: {
     label: "Kaprodi", home: "/dashboard-kaprodi",
     nav: [
-      { href: "/dashboard-kaprodi", label: "Dashboard Agregat", icon: LayoutDashboard, tab: "Beranda" },
+      { href: "/dashboard-kaprodi", label: "Dashboard Prodi", icon: LayoutDashboard, tab: "Beranda" },
       { href: "/dashboard-kaprodi/laporan", label: "Laporan Prodi", icon: FileBarChart, tab: "Laporan" },
       { href: "/dashboard-kaprodi/risiko", label: "Daftar Risiko", icon: ShieldAlert, tab: "Risiko" },
     ],
   },
   admin: {
-    label: "Administrator", home: "/dashboard-admin",
+    label: "Admin", home: "/dashboard-admin",
     nav: [
       { href: "/dashboard-admin", label: "Dashboard", icon: LayoutDashboard, tab: "Beranda" },
-      { href: "/dashboard-admin/data", label: "Data Akademik", icon: Database, tab: "Impor" },
+      { href: "/dashboard-admin/data", label: "Data Akademik", icon: Database, tab: "Data" },
       { href: "/dashboard-admin/pengguna", label: "Manajemen Pengguna", icon: Users, tab: "Pengguna" },
     ],
   },

@@ -22,7 +22,7 @@ function identityRows(d: MahasiswaDashboard): [string, string][] {
   const m = d.mahasiswa;
   return [
     ["Nama lengkap", m.nama], ["NIM", m.nim], ["Program studi", m.prodi ?? "-"], ["Angkatan", m.angkatan ? String(m.angkatan) : "-"],
-    ["IPK", (m.ipk ?? d.terbaru?.fitur.GPA) == null ? "-" : num((m.ipk ?? d.terbaru?.fitur.GPA) as number)], ["Dosen PA", d.dosen_pa?.nama ?? "Belum ditentukan"], ["Status", "Aktif"],
+    ["IPK", (m.ipk ?? d.terbaru?.fitur.GPA) == null ? "-" : num((m.ipk ?? d.terbaru?.fitur.GPA) as number)], ["Dosen PA", d.dosen_pa?.nama ?? "Belum ditetapkan"], ["Status", "Aktif"],
   ];
 }
 
@@ -51,7 +51,7 @@ export function ProfileView({ role }: { role: Role }) {
         <div className="divide-y divide-slate-200">
           <Link href={`${BASE[role]}/pengaturan`} className="flex items-center gap-3 py-3.5">
             <span className="text-slate-500"><Settings size={20} /></span>
-            <span className="flex-1"><span className="block text-[15px] font-bold">Pengaturan akun</span><span className="block text-xs text-slate-500">{ortu ? "Data akun dan identitas anak" : "Identitas, akun, dan tampilan"}</span></span>
+            <span className="flex-1"><span className="block text-[15px] font-bold">Pengaturan Akun</span><span className="block text-xs text-slate-500">{ortu ? "Data akun dan identitas anak" : "Identitas, akun, dan tampilan"}</span></span>
             <ChevronRight size={18} className="text-slate-400" />
           </Link>
           <ThemeRow />

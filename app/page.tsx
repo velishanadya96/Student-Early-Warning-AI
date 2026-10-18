@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 const KATA = ["jarang hadir", "nilainya turun", "tugasnya telat", "IPK-nya anjlok"];
-const MARQUEE = ["IPK", "Presensi", "Aktivitas LMS", "Tugas", "RandomForest", "WhatsApp"];
+const MARQUEE = ["IPK", "Rata-rata nilai", "Kehadiran", "Tugas", "Random Forest", "WhatsApp"];
 
 const ROLES = [
   { icon: UsersRound, nama: "Dosen PA", teks: "Radar dan daftar prioritas mahasiswa bimbingan, lengkap dengan penyebab risikonya dan tombol kirim WhatsApp ke orang tua.", href: "/login" },
@@ -22,8 +22,8 @@ const ROLES = [
   { icon: Database, nama: "Admin", teks: "Impor CSV nilai, presensi, dan tugas, hitung ulang risiko, lalu kelola pengguna.", href: "/login" },
 ];
 
-const CSV = [["2024001", "3.64", "96%", "12/12"], ["2024002", "3.12", "88%", "11/12"], ["2024003", "2.31", "62%", "7/12", "bad"], ["2024004", "2.89", "78%", "10/12"], ["2024005", "2.48", "71%", "8/12"]];
-const BARS: [string, number, string][] = [["Kehadiran", 62, "62%"], ["IPK", 58, "2.31"], ["Tugas", 58, "7/12"], ["Aktivitas LMS", 20, "3x"]];
+const CSV = [["V3924001", "3.64", "96%", "12/12"], ["V3924002", "3.12", "88%", "11/12"], ["V3924003", "2.31", "62%", "7/12", "bad"], ["V3924004", "2.89", "78%", "10/12"], ["V3924005", "2.48", "71%", "8/12"]];
+const BARS: [string, number, string][] = [["Kehadiran", 62, "62%"], ["IPK", 58, "2.31"], ["Tugas", 58, "7/12"], ["Rata-rata nilai", 61, "61"]];
 const RADAR = ["high", "high", "medium", "medium", "low", "low", "low", "medium", "low", "low"] as const;
 
 function Mark() {
@@ -36,7 +36,7 @@ export default function Home() {
       <header className="nav">
         <div className="wrap nav-in">
           <Link href="/" className="logo" aria-label="Student Early Warning AI"><Mark />Student Early Warning</Link>
-          <nav className="lk" aria-label="Navigasi landing page"><a href="#cara-kerja">Cara kerja</a><a href="#role">Role</a><a href="#mulai">Mulai</a></nav>
+          <nav className="lk" aria-label="Navigasi landing page"><a href="#cara-kerja">Cara kerja</a><a href="#peran">Peran</a><a href="#mulai">Mulai</a></nav>
           <div className="rt">
             <ThemeToggle />
             <Link href="/login" className="btn btn-g sm">Masuk</Link>
@@ -55,14 +55,14 @@ export default function Home() {
           </h1>
           <div className="b-meta">
             <div>
-              <p className="lead rv">Sistem membaca IPK, presensi, aktivitas LMS, dan tugas, lalu memberi skor risiko 0 sampai 1. Dosen PA dan orang tua dikabari lewat WhatsApp sebelum masalahnya membesar.</p>
+              <p className="lead rv">Sistem membaca IPK, rata-rata nilai, kehadiran, dan tugas, lalu memberi skor risiko 0 sampai 1. Dosen PA dan orang tua dikabari lewat WhatsApp sebelum masalahnya membesar.</p>
               <div className="cta rv" style={{ "--d": "140ms" } as React.CSSProperties}>
                 <Link href="/register" className="btn btn-p">Mulai sekarang<ArrowRight /></Link>
                 <a href="#cara-kerja" className="btn btn-g">Lihat cara kerjanya</a>
               </div>
             </div>
             <div className="b-score inv rv" style={{ "--d": "200ms" } as React.CSSProperties}>
-              <div className="top"><span className="pill">Risiko tinggi</span><small>Contoh: Citra Lestari · NIM 2024003</small></div>
+              <div className="top"><span className="pill">Risiko tinggi</span><small>Contoh: Citra Lestari · NIM V3924003</small></div>
               <div className="big"><CountUp to={0.82} decimals={2} /></div>
               <div className="trk" aria-hidden="true"><i style={{ width: "82%" }} /></div>
               <small>Kehadiran 62% · IPK 2.31 · tugas 7 dari 12</small>
@@ -81,7 +81,7 @@ export default function Home() {
             <div className="vis"><div className="vcsv" aria-hidden="true"><div className="hd"><span>NIM</span><span>IPK</span><span>Hadir</span><span>Tugas</span></div>{CSV.map((r, n) => <div key={r[0]} className={`rw ${r[4] ?? ""}`} style={{ "--n": n } as React.CSSProperties}><span>{r[0]}</span><span>{r[1]}</span><span>{r[2]}</span><span>{r[3]}</span></div>)}</div></div>
           </article>
           <article className="sc inv" style={{ "--k": 1 } as React.CSSProperties}>
-            <div><div className="no" aria-hidden="true">2</div><h3>Hitung risiko</h3><p>Model RandomForest memberi skor 0 sampai 1 dari empat faktor, lalu menandainya tinggi, sedang, atau rendah.</p></div>
+            <div><div className="no" aria-hidden="true">2</div><h3>Hitung risiko</h3><p>Model Random Forest memberi skor 0 sampai 1 dari empat faktor, lalu menandainya tinggi, sedang, atau rendah.</p></div>
             <div className="vis" aria-hidden="true">
               <div className="vg"><svg viewBox="0 0 200 108"><path className="t" pathLength="100" d="M20 100A80 80 0 0 1 180 100" /><path className="v" pathLength="100" d="M20 100A80 80 0 0 1 180 100" /></svg><b>0.82</b></div>
               <div className="vbars">{BARS.map(([l, p, v]) => <div key={l}><span>{l}</span><span className="tr"><i style={{ "--w": `${p}%` } as React.CSSProperties} /></span><span>{v}</span></div>)}</div>
@@ -92,18 +92,18 @@ export default function Home() {
             <div className="vis" aria-hidden="true"><div className="vlist"><div className="rd"><Radar levels={[...RADAR]} /></div>{[["CL", "Citra Lestari", "0.82"], ["EP", "Eka Pratama", "0.77"]].map(([a, n, s]) => <div key={a} className="it"><span className="av">{a}</span>{n}<em>{s}</em></div>)}</div></div>
           </article>
           <article className="sc inv" style={{ "--k": 3 } as React.CSSProperties}>
-            <div><div className="no" aria-hidden="true">4</div><h3>Kabari orang tua</h3><p>Pesan WhatsApp sudah tersusun. Dosen PA tinggal menekan kirim, dengan mode Manual, Fonnte, atau Log.</p></div>
+            <div><div className="no" aria-hidden="true">4</div><h3>Kabari orang tua</h3><p>Pesan WhatsApp sudah tersusun. Dosen PA tinggal menekan kirim, dengan mode manual, Fonnte, atau log.</p></div>
             <div className="vis" aria-hidden="true"><div className="vwa"><small><i />WhatsApp · Fonnte</small>Peringatan Akademik. Risiko Citra Lestari saat ini TINGGI (skor 0.82). Penyebab utama: kehadiran 62%.<div className="f"><span>14.02</span><span>Terkirim</span></div></div></div>
           </article>
         </div>
 
         <div className="b-stats">
-          <div className="rv"><b><CountUp to={4} /></b><span>faktor risiko</span><small>IPK, presensi, LMS, tugas</small></div>
-          <div className="rv" style={{ "--d": "120ms" } as React.CSSProperties}><b><CountUp to={5} /></b><span>role pengguna</span><small>satu sistem untuk semua</small></div>
-          <div className="rv" style={{ "--d": "240ms" } as React.CSSProperties}><b><CountUp to={3} /></b><span>mode WhatsApp</span><small>Manual, Fonnte, Log</small></div>
+          <div className="rv"><b><CountUp to={4} /></b><span>faktor risiko</span><small>IPK, nilai, kehadiran, tugas</small></div>
+          <div className="rv" style={{ "--d": "120ms" } as React.CSSProperties}><b><CountUp to={5} /></b><span>peran pengguna</span><small>satu sistem untuk semua</small></div>
+          <div className="rv" style={{ "--d": "240ms" } as React.CSSProperties}><b><CountUp to={3} /></b><span>mode WhatsApp</span><small>manual, Fonnte, log</small></div>
         </div>
 
-        <div className="b-sec-h" id="role"><p className="eyebrow">Untuk siapa</p><h2 className="rv">Lima role, satu tampilan masing-masing.</h2></div>
+        <div className="b-sec-h" id="peran"><p className="eyebrow">Untuk siapa</p><h2 className="rv">Lima peran, satu tampilan masing-masing.</h2></div>
         <div className="b-roles">
           {ROLES.map(({ icon: Icon, nama, teks, href }) => (
             <Link key={nama} href={href} className="br" aria-label={`Masuk sebagai ${nama}`}>

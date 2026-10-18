@@ -23,7 +23,7 @@ export default function KaprodiReport() {
   return (
     <section>
       <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-        <div><p className="text-sm font-semibold text-blue-600">Kaprodi</p><h1 className="text-2xl font-bold">Laporan Risiko Program Studi</h1><p className="mt-1 text-sm text-slate-500">Laporan untuk rapat dan akreditasi, dibuat dari data tersimpan di server.</p></div>
+        <div><p className="text-sm font-semibold text-blue-600">Kaprodi</p><h1 className="text-2xl font-bold">Laporan Prodi</h1><p className="mt-1 text-sm text-slate-500">Laporan untuk rapat dan akreditasi, dibuat dari data tersimpan di server.</p></div>
         <div className="flex flex-wrap items-center gap-2"><PeriodeSelect value={periode} options={d?.periode_tersedia ?? []} onChange={setPeriode} />
           <Button onClick={() => unduh("xlsx")} disabled={!d || busy !== null}><FileSpreadsheet size={17} className="mr-2" />{busy === "xlsx" ? "Menyiapkan..." : "Excel"}</Button>
           <Button variant="secondary" onClick={() => unduh("pdf")} disabled={!d || busy !== null}><Download size={17} className="mr-2" />{busy === "pdf" ? "Menyiapkan..." : "PDF"}</Button></div>
