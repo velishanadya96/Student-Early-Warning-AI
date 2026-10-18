@@ -3,22 +3,26 @@ from flask import jsonify
 
 
 class ApiError(Exception):
-    def __init__(self, code, message, status=400):
-        self.code, self.message, self.status = code, message, status
+    def __init__(self, code, message, status=400, extra=None):
+        self.code, self.message, self.status, self.extra = code, message, status, extra
 
 
-def error_response(code, message, status):
-    return jsonify(code=code, message=message), status
+def error_response(code, message, status, extra=None):
+    return jsonify(code=code, message=message, **(extra or {})), status
 
 
 def register_error_handlers(app, jwt):
     @app.errorhandler(ApiError)
     def _api(e):
-        return error_response(e.code, e.message, e.status)
+        return error_response(e.code, e.message, e.status, e.extra)
 
     @app.errorhandler(404)
     def _404(_):
         return error_response("TIDAK_DITEMUKAN", "Endpoint tidak ditemukan.", 404)
+
+    @app.errorhandler(413)
+    def _413(_):
+        return error_response("FILE_TERLALU_BESAR", "Ukuran file terlalu besar (maksimal 5 MB).", 413)
 
     @app.errorhandler(405)
     def _405(_):

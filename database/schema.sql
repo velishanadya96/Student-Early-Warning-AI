@@ -4,6 +4,16 @@
 CREATE DATABASE IF NOT EXISTS student_early_warning CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE student_early_warning;
 
+CREATE TABLE IF NOT EXISTS roster_mahasiswa (
+	nim VARCHAR(20) NOT NULL, 
+	nama VARCHAR(100) NOT NULL, 
+	prodi VARCHAR(100), 
+	angkatan INTEGER, 
+	email VARCHAR(120), 
+	PRIMARY KEY (nim)
+) ENGINE=InnoDB;
+
+
 CREATE TABLE IF NOT EXISTS `user` (
 	id_user INTEGER NOT NULL AUTO_INCREMENT, 
 	username VARCHAR(50) NOT NULL, 
@@ -11,18 +21,18 @@ CREATE TABLE IF NOT EXISTS `user` (
 	password_hash VARCHAR(255) NOT NULL, 
 	`role` VARCHAR(20) NOT NULL, 
 	is_active BOOL NOT NULL, 
-	created_at DATETIME NOT NULL, 
-	email_verified BOOL NOT NULL DEFAULT 1, 
+	email_verified BOOL NOT NULL, 
 	verify_token_hash VARCHAR(64), 
 	verify_expires_at DATETIME, 
-	failed_logins INTEGER NOT NULL DEFAULT 0, 
+	failed_logins INTEGER NOT NULL, 
 	locked_until DATETIME, 
+	created_at DATETIME NOT NULL, 
 	PRIMARY KEY (id_user), 
 	UNIQUE (username), 
-	UNIQUE (email), 
-	INDEX ix_user_verify_token_hash (verify_token_hash)
+	UNIQUE (email)
 ) ENGINE=InnoDB;
 
+CREATE INDEX ix_user_verify_token_hash ON `user` (verify_token_hash);
 
 CREATE TABLE IF NOT EXISTS dosen_pa (
 	id_dosen_pa INTEGER NOT NULL AUTO_INCREMENT, 
@@ -40,7 +50,7 @@ CREATE TABLE IF NOT EXISTS dosen_pa (
 
 CREATE TABLE IF NOT EXISTS mahasiswa (
 	nim VARCHAR(20) NOT NULL, 
-	id_user INTEGER NOT NULL, 
+	id_user INTEGER, 
 	id_dosen_pa INTEGER, 
 	nama VARCHAR(100) NOT NULL, 
 	prodi VARCHAR(100), 
@@ -84,13 +94,15 @@ CREATE TABLE IF NOT EXISTS presensi (
 	id_presensi INTEGER NOT NULL AUTO_INCREMENT, 
 	nim VARCHAR(20) NOT NULL, 
 	kode_mk VARCHAR(20) NOT NULL, 
-	pertemuan INTEGER NOT NULL, 
-	status_kehadiran VARCHAR(20) NOT NULL, 
+	periode VARCHAR(20) NOT NULL, 
+	total_pertemuan INTEGER NOT NULL, 
+	hadir INTEGER NOT NULL, 
 	PRIMARY KEY (id_presensi), 
 	FOREIGN KEY(nim) REFERENCES mahasiswa (nim)
 ) ENGINE=InnoDB;
 
 CREATE INDEX ix_presensi_nim ON presensi (nim);
+CREATE INDEX ix_presensi_periode ON presensi (periode);
 
 CREATE TABLE IF NOT EXISTS risk_score (
 	id_score INTEGER NOT NULL AUTO_INCREMENT, 
@@ -99,6 +111,7 @@ CREATE TABLE IF NOT EXISTS risk_score (
 	skor FLOAT NOT NULL, 
 	kategori_risiko VARCHAR(10) NOT NULL, 
 	faktor_dominan VARCHAR(100), 
+	detail TEXT, 
 	PRIMARY KEY (id_score), 
 	CONSTRAINT uq_risk_nim_periode UNIQUE (nim, periode), 
 	FOREIGN KEY(nim) REFERENCES mahasiswa (nim)
@@ -110,6 +123,8 @@ CREATE TABLE IF NOT EXISTS tugas (
 	id_tugas INTEGER NOT NULL AUTO_INCREMENT, 
 	nim VARCHAR(20) NOT NULL, 
 	kode_mk VARCHAR(20) NOT NULL, 
+	periode VARCHAR(20) NOT NULL, 
+	judul VARCHAR(150), 
 	waktu_kumpul DATETIME, 
 	status_terlambat VARCHAR(20), 
 	PRIMARY KEY (id_tugas), 
@@ -117,6 +132,7 @@ CREATE TABLE IF NOT EXISTS tugas (
 ) ENGINE=InnoDB;
 
 CREATE INDEX ix_tugas_nim ON tugas (nim);
+CREATE INDEX ix_tugas_periode ON tugas (periode);
 
 CREATE TABLE IF NOT EXISTS catatan_tindak_lanjut (
 	id_catatan INTEGER NOT NULL AUTO_INCREMENT, 
@@ -142,19 +158,13 @@ CREATE TABLE IF NOT EXISTS notifikasi (
 	status_kirim VARCHAR(20) NOT NULL, 
 	kanal VARCHAR(20) NOT NULL, 
 	dibaca BOOL NOT NULL, 
+	no_tujuan VARCHAR(20), 
+	percobaan INTEGER NOT NULL, 
+	dibuat_at DATETIME NOT NULL, 
+	dikirim_at DATETIME, 
 	PRIMARY KEY (id_notifikasi), 
 	FOREIGN KEY(id_user) REFERENCES `user` (id_user), 
 	FOREIGN KEY(id_score) REFERENCES risk_score (id_score)
 ) ENGINE=InnoDB;
 
 CREATE INDEX ix_notifikasi_id_user ON notifikasi (id_user);
-
-
-CREATE TABLE IF NOT EXISTS roster_mahasiswa (
-	nim VARCHAR(20) NOT NULL, 
-	nama VARCHAR(100) NOT NULL, 
-	prodi VARCHAR(100), 
-	angkatan INTEGER, 
-	email VARCHAR(120), 
-	PRIMARY KEY (nim)
-) ENGINE=InnoDB;

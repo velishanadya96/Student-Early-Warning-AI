@@ -80,7 +80,7 @@ def login_ortu():
     data = parse(LoginOrtuIn, request.get_json(silent=True))
     user = None
     mhs = db.session.get(Mahasiswa, data.nim)
-    if mhs and mhs.user.email == data.email:
+    if mhs and mhs.user and mhs.user.email == data.email:
         ortu = OrangTua.query.filter_by(nim=mhs.nim).first()
         user = ortu.user if ortu else None
 
@@ -229,7 +229,7 @@ def register_ortu():
         raise ApiError("PENDAFTARAN_DITUTUP", "Pendaftaran mandiri dinonaktifkan. Hubungi Admin.", 403)
     d = parse(RegisterOrtuIn, request.get_json(silent=True))
     mhs = db.session.get(Mahasiswa, d.nim)
-    if not mhs or mhs.user.email != d.email_mahasiswa:
+    if not mhs or not mhs.user or mhs.user.email != d.email_mahasiswa:
         raise ApiError("VERIFIKASI_GAGAL", "NIM dan email mahasiswa tidak cocok.", 422)
     user = create_user_with_profile(
         role="orangtua", name=d.name, email=d.email, password=d.password, nim=d.nim, no_wa=d.no_wa,
@@ -256,7 +256,7 @@ def resend_verification():
     data = parse(ResendIn, request.get_json(silent=True))
     if data.nim:  # orang tua: NIM + email mahasiswa -> akun orang tua dari mahasiswa itu
         mhs = db.session.get(Mahasiswa, data.nim.strip())
-        ortu = OrangTua.query.filter_by(nim=mhs.nim).first() if mhs and mhs.user.email == data.email else None
+        ortu = OrangTua.query.filter_by(nim=mhs.nim).first() if mhs and mhs.user and mhs.user.email == data.email else None
         user = ortu.user if ortu else None
     else:
         user = User.query.filter_by(email=data.email).first()

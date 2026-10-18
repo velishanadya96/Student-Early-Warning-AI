@@ -1,6 +1,6 @@
 # Jalankan:  docker compose up --build
 # Backend jalan di http://localhost:5000 (cek: http://localhost:5000/api/v1/health)
-# Tabel dibuat otomatis lewat migrasi dan 9 akun demo diisi otomatis (password 123456).
+# Tabel dibuat otomatis lewat migrasi dan 11 akun demo diisi otomatis (password 123456).
 # Nilai di bawah sudah cukup untuk demo lokal. Untuk server sungguhan, isi lewat file .env (lihat .env.example).
 services:
   db:
@@ -31,11 +31,30 @@ services:
       EMAIL_VERIFICATION_REQUIRED: ${EMAIL_VERIFICATION_REQUIRED:-true}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       ALLOWED_EMAIL_DOMAINS: ${ALLOWED_EMAIL_DOMAINS:-}
+      WA_PROVIDER: ${WA_PROVIDER:-manual}
+      FONNTE_TOKEN: ${FONNTE_TOKEN:-}
     ports:
       - "5000:5000"
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
+
+  # Worker pengiriman WhatsApp otomatis (hanya relevan bila WA_PROVIDER=fonnte atau log; mode manual tidak membutuhkannya)
+  worker:
+    build: .
+    entrypoint: ["python", "worker.py"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: mysql+pymysql://root:${MYSQL_ROOT_PASSWORD:-root}@db:3306/student_early_warning
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-only-ganti-di-produksi-minimal-32-karakter}
+      WA_PROVIDER: ${WA_PROVIDER:-manual}
+      FONNTE_TOKEN: ${FONNTE_TOKEN:-}
+    depends_on:
+      api:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

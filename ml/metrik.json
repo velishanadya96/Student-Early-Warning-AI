@@ -1,0 +1,41 @@
+{
+  "fitur": [
+    "GPA",
+    "avg_course_grade",
+    "attendance_rate",
+    "assignment_submission_rate"
+  ],
+  "jumlah_data": 1545,
+  "threshold": 0.4,
+  "uji_akurasi": 1.0,
+  "uji_f1_macro": 1.0,
+  "uji_recall_high": 1.0,
+  "threshold_cv_data_latih": {
+    "0.2": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "0.3": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "0.4": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "0.5": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "0.6": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  },
+  "catatan": "Label di dataset ini tampak dibangkitkan dari aturan ambang pada attendance_rate dan GPA, sehingga skor mendekati sempurna tidak membuktikan performa di data nyata. Validasi dengan data riil sebelum dipakai untuk keputusan."
+}

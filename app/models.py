@@ -77,7 +77,8 @@ class DosenPA(db.Model):
 class Mahasiswa(db.Model):
     __tablename__ = "mahasiswa"
     nim = db.Column(db.String(20), primary_key=True)
-    id_user = db.Column(db.Integer, db.ForeignKey("user.id_user"), nullable=False, unique=True)
+    # id_user kosong = data mahasiswa hasil impor SIAKAD yang belum membuat akun; terhubung saat mahasiswa mendaftar dengan NIM yang sama
+    id_user = db.Column(db.Integer, db.ForeignKey("user.id_user"), nullable=True, unique=True)
     id_dosen_pa = db.Column(db.Integer, db.ForeignKey("dosen_pa.id_dosen_pa"), nullable=True)
     nama = db.Column(db.String(100), nullable=False)
     prodi = db.Column(db.String(100))
@@ -117,24 +118,29 @@ class Nilai(db.Model):
     id_nilai = db.Column(db.Integer, primary_key=True)
     nim = db.Column(db.String(20), db.ForeignKey("mahasiswa.nim"), nullable=False, index=True)
     kode_mk = db.Column(db.String(20), nullable=False)
-    semester = db.Column(db.String(20), nullable=False)
+    semester = db.Column(db.String(20), nullable=False)  # = periode, format 2026-1 (ganjil) / 2026-2 (genap)
     nilai_mk = db.Column(db.Float)
 
 
 class Presensi(db.Model):
+    """Rekap kehadiran per mata kuliah per periode (attendance_rate = sum(hadir) / sum(total_pertemuan))."""
     __tablename__ = "presensi"
     id_presensi = db.Column(db.Integer, primary_key=True)
     nim = db.Column(db.String(20), db.ForeignKey("mahasiswa.nim"), nullable=False, index=True)
     kode_mk = db.Column(db.String(20), nullable=False)
-    pertemuan = db.Column(db.Integer, nullable=False)
-    status_kehadiran = db.Column(db.String(20), nullable=False)
+    periode = db.Column(db.String(20), nullable=False, index=True)
+    total_pertemuan = db.Column(db.Integer, nullable=False)
+    hadir = db.Column(db.Integer, nullable=False)
 
 
 class Tugas(db.Model):
+    """Satu baris = satu tugas. waktu_kumpul kosong = belum dikumpulkan (assignment_submission_rate = terkumpul / total)."""
     __tablename__ = "tugas"
     id_tugas = db.Column(db.Integer, primary_key=True)
     nim = db.Column(db.String(20), db.ForeignKey("mahasiswa.nim"), nullable=False, index=True)
     kode_mk = db.Column(db.String(20), nullable=False)
+    periode = db.Column(db.String(20), nullable=False, index=True)
+    judul = db.Column(db.String(150))
     waktu_kumpul = db.Column(db.DateTime)
     status_terlambat = db.Column(db.String(20))
 
@@ -147,7 +153,8 @@ class RiskScore(db.Model):
     periode = db.Column(db.String(20), nullable=False)
     skor = db.Column(db.Float, nullable=False)  # probabilitas kelas High
     kategori_risiko = db.Column(db.String(10), nullable=False)  # Low / Medium / High
-    faktor_dominan = db.Column(db.String(100))
+    faktor_dominan = db.Column(db.String(100))  # ringkasan penyebab utama, mis. "Kehadiran rendah, IPK rendah"
+    detail = db.Column(db.Text)  # JSON: nilai 4 fitur + daftar faktor penyebab (dipakai dashboard dan notifikasi)
 
 
 class CatatanTindakLanjut(db.Model):
@@ -160,8 +167,13 @@ class CatatanTindakLanjut(db.Model):
     isi_pesan = db.Column(db.Text)
     tanggal = db.Column(db.Date, nullable=False)
 
+    dosen = db.relationship("DosenPA")
+    score = db.relationship("RiskScore")
+
 
 class Notifikasi(db.Model):
+    """Satu baris per penerima. kanal 'sistem' = tampil di dashboard; kanal 'wa' = pesan WhatsApp ke orang tua (no_tujuan).
+    status_kirim: pending (menunggu dikirim) / terkirim / gagal (setelah WA_MAX_RETRY percobaan)."""
     __tablename__ = "notifikasi"
     id_notifikasi = db.Column(db.Integer, primary_key=True)
     id_user = db.Column(db.Integer, db.ForeignKey("user.id_user"), nullable=False, index=True)
@@ -170,3 +182,10 @@ class Notifikasi(db.Model):
     status_kirim = db.Column(db.String(20), nullable=False, default="pending")
     kanal = db.Column(db.String(20), nullable=False)  # sistem / wa
     dibaca = db.Column(db.Boolean, nullable=False, default=False)  # untuk PATCH /notifikasi/{id}/baca
+    no_tujuan = db.Column(db.String(20))  # nomor WA tujuan (kanal wa)
+    percobaan = db.Column(db.Integer, nullable=False, default=0)
+    dibuat_at = db.Column(db.DateTime, nullable=False, default=_now)
+    dikirim_at = db.Column(db.DateTime)
+
+    user = db.relationship("User")
+    score = db.relationship("RiskScore")

@@ -41,3 +41,16 @@ class Config:
     # Domain email yang boleh dipakai akun mahasiswa/dosen/kaprodi/admin, dipisah koma. Kosong = semua domain.
     # Contoh: ALLOWED_EMAIL_DOMAINS=student.uns.ac.id,uns.ac.id
     ALLOWED_EMAIL_DOMAINS = [d.strip().lower().lstrip("@") for d in os.getenv("ALLOWED_EMAIL_DOMAINS", "").split(",") if d.strip()]
+
+    # Model risiko (Random Forest 4 fitur). Dimuat sekali dari lokasi tepercaya di server, tidak pernah dari unggahan pengguna.
+    MODEL_PATH = os.getenv("MODEL_PATH", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ml", "model_final.pkl"))
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # batas ukuran file impor
+
+    # Notifikasi WhatsApp ke orang tua saat risiko menjadi High (FR-11).
+    #   manual : pesan disiapkan, Dosen PA menekan tombol "Kirim WhatsApp" (membuka WhatsApp dengan pesan siap kirim)
+    #   fonnte : dikirim otomatis lewat gateway Fonnte (isi FONNTE_TOKEN)
+    #   log    : hanya dicatat di log dan ditandai terkirim (untuk uji coba)
+    WA_PROVIDER = os.getenv("WA_PROVIDER", "manual").lower()
+    FONNTE_TOKEN = os.getenv("FONNTE_TOKEN", "")
+    WA_MAX_RETRY = int(os.getenv("WA_MAX_RETRY", "3"))
+    WA_RETRY_INTERVAL = int(os.getenv("WA_RETRY_INTERVAL", "300"))  # detik, dipakai worker.py

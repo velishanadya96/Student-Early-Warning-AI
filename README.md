@@ -1,8 +1,8 @@
 # Backend Student Early Warning AI
 
 Flask 3 (Blueprint per modul) + SQLAlchemy 2 + Flask-Migrate + JWT + bcrypt + Pydantic, sesuai
-*Dokumen Arsitektur Backend SEW v1.0*. Tahap ini: **FR-01 Login**, **FR-12 Kelola akun**, dan seluruh
-skema database (10 tabel). Modul import/risk/dashboard/catatan/notifikasi/laporan menyusul.
+*Dokumen Arsitektur Backend SEW v1.0*. Tahap ini: **FR-01 s/d FR-12** (login, akun, impor data, risiko, dashboard, catatan, notifikasi WA, laporan) dan seluruh
+skema database (10 tabel). 
 
 ## Jalankan (Windows)
 ```powershell
@@ -59,3 +59,36 @@ Login dibatasi 30 percobaan/menit per IP (`LOGIN_RATE_LIMIT`; front-end memanggi
 - `POST /auth/google`: login dengan Google (akun harus sudah terdaftar, kalau belum 404 `GOOGLE_BELUM_TERDAFTAR`).
 - `POST /users/roster` (admin) & `GET /users/roster/count`: daftar mahasiswa resmi. Jika terisi, daftar mandiri wajib NIM terdaftar + email cocok.
 - Env: `GOOGLE_CLIENT_ID`, `ALLOWED_EMAIL_DOMAINS` (kosong = semua domain). Migrasi `c3d4e5f6a7b8`.
+
+## Pipeline data, risiko, dan notifikasi (FR-02 ... FR-11)
+Format file impor: lihat `FORMAT_CSV.md`. Contoh siap pakai di folder `contoh/` (dibuat ulang dengan `python contoh/buat_contoh.py`).
+Migrasi baru `d4e5f6a7b8c9` (jalankan `flask --app run db upgrade`; Docker otomatis).
+
+| Method | URL | Akses | Keterangan |
+|---|---|---|---|
+| POST | /import/akademik, /import/tugas | admin | multipart `file` (.csv/.xlsx) + `periode`; semua-atau-tidak-sama-sekali, error per baris |
+| GET | /import/format | admin | daftar kolom |
+| POST | /risk/hitung | admin | `{"periode":"2026-1"}` -> hitung skor, buat notifikasi untuk yang baru High |
+| GET | /risk/periode | login | periode yang punya data |
+| GET | /risk/{nim} | sesuai kepemilikan | skor terbaru, fitur, penyebab, riwayat |
+| GET | /dashboard/dosen, /kaprodi, /admin, /mahasiswa, /ortu | per role | data dashboard dari DB (`?periode=`) |
+| POST/GET | /catatan | dosen (GET: + mahasiswa) | catatan tindak lanjut; `isi_pesan` = pesan ke mahasiswa |
+| GET | /laporan?format=xlsx\|pdf&periode= | kaprodi, admin, dosen (bimbingan) | unduh laporan |
+| GET | /notifikasi | login | notifikasi dashboard milik sendiri |
+| PATCH | /notifikasi/{id}/baca | pemilik | tandai dibaca |
+| GET | /notifikasi/wa-ortu | dosen/kaprodi/admin | pesan WA ke orang tua + tautan wa.me |
+| POST | /notifikasi/{id}/terkirim, /kirim-ulang | dosen, admin | tandai terkirim (mode manual) / kirim ulang |
+| POST | /notifikasi/proses | admin | proses antrean WA (provider otomatis) |
+
+**Model**: `ml/model_final.pkl` (Random Forest, 4 fitur: GPA, avg_course_grade, attendance_rate, assignment_submission_rate;
+ambang High = peluang >= 0,4). Dibuat oleh notebook `SEW_FINAL_perbaikan.ipynb` atau `python ml/latih_model.py`.
+Versi scikit-learn **harus 1.6.1** (sama dengan requirements.txt). Kontrak input/output: `ml/KONTRAK.md`.
+**Penyebab risiko**: untuk tiap fitur, peluang High dibandingkan dengan peluang bila fitur itu diganti nilai tipikal
+(median); fitur yang memperburuk dan menurunkan peluang paling besar = penyebab utama (`app/risk.py`).
+
+**WhatsApp** (`.env`): `WA_PROVIDER=manual|fonnte|log`, `FONNTE_TOKEN`, `WA_MAX_RETRY=3`, `WA_RETRY_INTERVAL=300`.
+Docker menjalankan service `worker` (`python worker.py`) untuk mencoba ulang pengiriman otomatis.
+
+Akun demo ditambah: `ortu-citra@example.com` (NIM 2024003, kehadiran rendah) dan `ortu-eka@example.com` (NIM 2024005, IPK rendah).
+Seed mengimpor `contoh/*.csv` periode 2026-1 dan menghitung risiko otomatis.
+Tes: `pip install pytest` lalu `python -m pytest -q` (75 tes).

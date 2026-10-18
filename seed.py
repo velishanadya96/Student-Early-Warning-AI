@@ -32,10 +32,10 @@ with app.app_context():
 
     mahasiswa = [
         ("alya", "Alya Putri", "2024001", 2024, 3.72),
-        ("bagas", "Bagas Pratama", "2024002", 2024, 2.30),
-        ("citra", "Citra Lestari", "2024003", 2024, 1.30),
-        ("dimas", "Dimas Ramadhan", "2024004", 2023, 2.86),
-        ("eka", "Eka Sari", "2024005", 2023, 2.50),
+        ("bagas", "Bagas Pratama", "2024002", 2024, 2.90),
+        ("citra", "Citra Lestari", "2024003", 2024, 3.10),
+        ("dimas", "Dimas Ramadhan", "2024004", 2023, 3.00),
+        ("eka", "Eka Sari", "2024005", 2023, 2.20),
     ]
     for username, nama, nim, angkatan, ipk in mahasiswa:
         u, new = add_user(username, f"{username}@student.uns.ac.id", "mahasiswa")
@@ -47,5 +47,31 @@ with app.app_context():
     u, new = add_user("orangtua", "orangtua@example.com", "orangtua")
     if new:
         db.session.add(OrangTua(id_user=u.id_user, nim="2024001", nama="Orang Tua Mahasiswa", no_wa="6281234567802"))
+    # Orang tua mahasiswa berisiko tinggi (tujuan WhatsApp peringatan dini): Citra (kehadiran), Eka (IPK)
+    for username, nim, nama, wa in (("ortu-citra", "2024003", "Orang Tua Citra", "6281234567803"),
+                                    ("ortu-eka", "2024005", "Orang Tua Eka", "6281234567804")):
+        u, new = add_user(username, f"{username}@example.com", "orangtua")
+        if new:
+            db.session.add(OrangTua(id_user=u.id_user, nim=nim, nama=nama, no_wa=wa))
     db.session.commit()
+
+    # Data akademik contoh (CSV) -> hitung skor risiko. Aman diulang: impor menimpa data periode yang sama,
+    # notifikasi hanya dibuat saat mahasiswa baru masuk kategori High.
+    import os
+    from app import impor, risk
+
+    class _Berkas:
+        def __init__(self, path):
+            self.filename, self._path = os.path.basename(path), path
+
+        def read(self):
+            with open(self._path, "rb") as f:
+                return f.read()
+
+    contoh = os.path.join(os.path.dirname(os.path.abspath(__file__)), "contoh")
+    if os.path.exists(os.path.join(contoh, "akademik_2026-1.csv")) and os.path.exists(app.config["MODEL_PATH"]):
+        impor.impor_akademik(_Berkas(os.path.join(contoh, "akademik_2026-1.csv")), "2026-1")
+        impor.impor_tugas(_Berkas(os.path.join(contoh, "tugas_2026-1.csv")), "2026-1")
+        r = risk.hitung("2026-1")
+        print(f"Data contoh diimpor, risiko dihitung: Tinggi={r['High']} Sedang={r['Medium']} Rendah={r['Low']}, WA ortu dibuat={r['notifikasi_wa']}")
     print(f"Seed selesai. Total akun: {User.query.count()} (password demo: {PASSWORD})")
