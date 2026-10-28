@@ -1,74 +1,59 @@
-# Student Early Warning AI
+# Student Early Warning AI (SEW-AI)
 
-Project Front-End Student Early Warning AI berdasarkan SKPL dan kebutuhan praktikum.
+Sistem peringatan dini mahasiswa berisiko akademik. Model machine learning menghitung risiko
+(Rendah/Sedang/Tinggi) dari 4 fitur: IPK, rata-rata nilai mata kuliah, persentase kehadiran,
+dan persentase pengumpulan tugas. Mahasiswa berisiko Tinggi memicu notifikasi WhatsApp ke orang tua
+beserta alasan risikonya.
 
-## Role
-1. Dosen PA
-2. Mahasiswa
+## Struktur repo
 
-## Login demo
-Semua akun demo memakai password `123456`. Di halaman login tersedia dropdown **Akun demo** untuk mengisi form otomatis.
-Belum punya akun? Klik **Daftar** di bawah form login (`/register`).
+| Branch | Isi |
+|---|---|
+| `master` / `frontend-integrasi` | Front-end Next.js (repo ini) |
+| `backend` | Back-end Flask + database + model ML |
+| `mobile` | Aplikasi mobile |
 
-| Role | Email | Dashboard |
+Cara menjalankan semuanya di localhost: lihat **[CARA-PASANG.md](CARA-PASANG.md)**.
+
+## Peran (5)
+
+| Peran | Dashboard | Fitur utama |
 |---|---|---|
-| Mahasiswa (Alya Putri, NIM 2024001) — risiko Rendah | `alya@student.uns.ac.id` | `/dashboard-mahasiswa` |
-| Mahasiswa (Bagas Pratama, NIM 2024002) — risiko Sedang | `bagas@student.uns.ac.id` | `/dashboard-mahasiswa` |
-| Mahasiswa (Citra Lestari, NIM 2024003) — risiko Tinggi | `citra@student.uns.ac.id` | `/dashboard-mahasiswa` |
-| Mahasiswa (Dimas Ramadhan, NIM 2024004) — risiko Rendah | `dimas@student.uns.ac.id` | `/dashboard-mahasiswa` |
-| Mahasiswa (Eka Sari, NIM 2024005) — risiko Sedang | `eka@student.uns.ac.id` | `/dashboard-mahasiswa` |
-| Dosen PA | `dosen@student.uns.ac.id` | `/dashboard` |
-| Kaprodi | `kaprodi@student.uns.ac.id` | `/dashboard-kaprodi` |
-| Admin | `admin@student.uns.ac.id` | `/dashboard-admin` |
-| Orang Tua (pilih mahasiswa di form login) | `orangtua@example.com` | `/dashboard-orangtua` |
+| Dosen PA | `/dashboard` | Ringkasan bimbingan, daftar risiko, detail mahasiswa, catatan tindak lanjut, riwayat intervensi, pesan WA ke orang tua, kontak orang tua, laporan |
+| Mahasiswa | `/dashboard-mahasiswa` | Ringkasan akademik, status risiko + penyebab, rekomendasi, pesan dari Dosen PA, notifikasi, profil |
+| Kaprodi | `/dashboard-kaprodi` | Ringkasan risiko prodi, daftar risiko, unduh laporan PDF/Excel |
+| Admin | `/dashboard-admin` | Impor data akademik & tugas (CSV/Excel), hitung risiko, kelola pengguna, roster NIM |
+| Orang Tua | `/dashboard-orangtua` | Status risiko anak, IPK anak, notifikasi, kontak WA Dosen PA |
 
-## Dashboard Dosen PA
-- Ringkasan mahasiswa
-- Risiko tinggi/sedang/rendah
-- Data mahasiswa
-- Risk Score
-- Filter risiko
-- Catatan tindak lanjut
-- Riwayat intervensi
+> Peran Orang Tua adalah pengembangan tambahan dari SRS v1.0 (yang mendefinisikan Admin, Dosen PA, Kaprodi, Mahasiswa).
 
-## Dashboard Mahasiswa
-- Ringkasan akademik
-- IPK
-- Presensi
-- Aktivitas LMS
-- Pengumpulan tugas
-- Peringatan dini
-- Profil saya
-- Status risiko
-- Rekomendasi
+## Login
+
+- **Email + password**, atau **Masuk dengan Google** (akun harus sudah terdaftar).
+- **Daftar mahasiswa** (`/register`): wajib akun Google asli + NIM, kalau `GOOGLE_CLIENT_ID` diisi di backend.
+  Kalau kosong, daftar memakai email + tautan verifikasi.
+- **Orang tua** (`/login-ortu`): NIM anak + email anak + password orang tua. Daftar di `/register-ortu`.
+
+## Akun demo
+
+Password semua akun: `123456`.
+
+| Peran | Email |
+|---|---|
+| Admin | `admin@student.uns.ac.id` |
+| Kaprodi | `kaprodi@student.uns.ac.id` |
+| Dosen PA | `dosen@student.uns.ac.id` |
+| Mahasiswa | `alya@`, `bagas@`, `citra@`, `dimas@`, `eka@` + `student.uns.ac.id` (NIM 2024001 s/d 2024005) |
+| Orang Tua | login di `/login-ortu`: NIM `2024001` + `alya@student.uns.ac.id` (akun `orangtua@example.com`) |
 
 ## Teknologi
-Next.js App Router, React 19, TypeScript strict, Tailwind CSS v4, CVA, Zod, Zustand, TanStack Query, Middleware. Semua data diambil dari Flask Backend + database lewat proxy `/api/backend` (tanpa mock data).
 
-## Jalankan
-```bash
-npm install
-npm run dev
-```
-Buka http://localhost:3000
+Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS v4, CVA, Zod, Zustand, TanStack Query.
+Semua data diambil dari backend Flask lewat proxy `/api/backend` (tanpa data tiruan). Token disimpan di
+cookie httpOnly, dan `middleware.ts` memeriksa peran ke server sebelum membuka dashboard.
 
-## Demo Role Dashboard
+Format file impor ada di `FORMAT_CSV.md` pada branch `backend`; template CSV ada di `public/templates/`.
 
-Project ini sekarang memiliki dashboard multi-role:
+## Modul 8 (Build Tools Modern)
 
-- **Dosen PA** → `/dashboard`
-- **Mahasiswa** → `/dashboard-mahasiswa`
-- **Administrator** → `/dashboard-admin`
-- **Kaprodi** → `/dashboard-kaprodi`
-- **Orang Tua** → `/dashboard-orangtua`
-
-Password demo: `123456`
-
-Data berasal dari backend (seed dari `backend/contoh/*.csv`). Admin mengunggah CSV/Excel di menu Data, lalu menekan "Hitung risiko"; mahasiswa berisiko Tinggi memicu notifikasi WhatsApp ke orang tua beserta alasan risikonya. Format CSV: lihat `backend/FORMAT_CSV.md` atau template di `public/templates/`.
-
-> Catatan: role Orang Tua merupakan pengembangan tambahan dari SRS yang ada. SRS versi 1.0 mendefinisikan empat aktor utama: Admin, Dosen PA, Kaprodi, dan Mahasiswa.
-
-
-## Modul 8 — Build Tools Modern
-
-Tugas build-tools dikerjakan sebagai subproject terpisah di `modul-8-vite/` karena aplikasi utama menggunakan Next.js App Router. Subproject tersebut berisi Vite + React + Strict TypeScript + Biome, path alias, manual chunks, HMR demo, CI quality gate, konfigurasi SonarQube, matriks migrasi, dan benchmark PDF.
+Dikerjakan sebagai subproject terpisah di `modul-8-vite/` (Vite + React + Strict TypeScript + Biome).
