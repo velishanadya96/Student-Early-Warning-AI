@@ -1,7 +1,5 @@
 # SEW Mobile 
-SEW-AI Mobile adalah aplikasi Android yang dibuat sebagai bagian dari project Student Early Warning AI. Project ini dikerjakan secara berkelompok untuk membantu memantau perkembangan akademik mahasiswa.
-
-Aplikasi mobile ini dikembangkan menggunakan Android Studio dan Kotlin. Dengan adanya aplikasi ini, sistem SEW-AI diharapkan bisa diakses melalui perangkat Android.
+SEW-AI Mobile adalah aplikasi Android yang dibuat sebagai bagian dari project Student Early Warning AI. Aplikasi mobile ini dikembangkan menggunakan Android Studio dan Kotlin. Dengan adanya aplikasi ini, sistem SEW-AI diharapkan bisa diakses melalui perangkat Android.
 
 # *Teknologi yang Digunakan*
 - Android Studio — lingkungan pengembangan aplikasi Android.
